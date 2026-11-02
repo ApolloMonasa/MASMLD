@@ -11,6 +11,7 @@ kotlin { jvmToolchain(25) }
 dependencies {
     testImplementation("junit:junit:4.13.2")
     intellijPlatform {
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
         val localIde = providers.gradleProperty("localIdePath").orNull
         if (localIde != null) local(localIde)
         else rustRover(providers.gradleProperty("platformVersion"))

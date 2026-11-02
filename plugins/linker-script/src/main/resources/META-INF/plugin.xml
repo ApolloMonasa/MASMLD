@@ -2,11 +2,18 @@
     <id>dev.masmld.linker</id>
     <name>MASMLD GNU Linker Script</name>
     <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
-    <description><![CDATA[<p>Independent GNU ld linker-script support for IntelliJ Platform IDEs.</p><ul><li>Dedicated .ld file type and file icons.</li><li>Syntax highlighting and tolerant structural parsing.</li><li>Offline Chinese quick documentation for 48 linker commands and built-in functions.</li></ul><p>Requires MASMLD Core; no CPU architecture module or RISC-V selection is required. Enable quick documentation on hover in editor settings. The plugin does not run the linker, expand templates or resolve linker-script symbols.</p>]]></description>
-    <change-notes><![CDATA[<p>0.7.0: First public release under the MIT license. Adds blue/purple modular cube branding and navigation from same-file macro calls and .purgem to .macro definitions. Includes assembly and linker-script highlighting, offline documentation, file icons and host source-symbol navigation.</p>]]></change-notes>
+    <description><![CDATA[<p>Independent GNU ld linker-script support for IntelliJ Platform IDEs.</p><ul><li>Dedicated .ld file type and file icons.</li><li>Syntax highlighting and tolerant structural parsing.</li><li>Offline Chinese quick documentation for 48 linker commands and built-in functions.</li></ul><p>Requires MASMLD Core; no CPU architecture module or RISC-V selection is required. Enable quick documentation on hover in editor settings. Includes symbol/region/section completion and navigation, INCLUDE, find usages, rename, constant analysis, layout hints, structure, folding and formatting. The plugin does not run the linker or expand templates.</p>]]></description>
+    <change-notes><![CDATA[<p>0.8 development: contextual completion and parameter hints; include-aware symbols; ISA configuration and diagnostics; find usages and rename; structure, folding and formatting; GNU ld expressions and layout hints; optional binary symbol/debug-source navigation. See the repository changelog for coverage and limitations.</p>]]></change-notes>
     <depends>com.intellij.modules.platform</depends>
     <depends>dev.masmld.core</depends>
     <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdCompletion"/>
+        <lang.findUsagesProvider language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdUsages"/>
+        <lang.psiStructureViewFactory language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdStructure"/>
+        <lang.foldingBuilder language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdFolding"/>
+        <lang.formatter language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdFormatter"/>
+        <renamePsiElementProcessor implementation="dev.masmld.ld.editing.LdRename"/>
+        <annotator language="MASMLD GNU ld" implementationClass="dev.masmld.ld.editing.LdAnnotator"/>
         <fileType name="MASMLD Linker Script" language="MASMLD GNU ld" implementationClass="dev.masmld.ld.LdFileType" fieldName="INSTANCE" extensions="ld"/>
         <lang.parserDefinition language="MASMLD GNU ld" implementationClass="dev.masmld.ld.parser.LdParserDefinition"/>
         <lang.syntaxHighlighterFactory language="MASMLD GNU ld" implementationClass="dev.masmld.ld.highlighting.LdSyntaxHighlighterFactory"/>

@@ -21,6 +21,7 @@ import dev.masmld.ld.lexer.LdTokens as T
 object LdElements {
     val FILE = IFileElementType(LdLanguage)
     val BLOCK = IElementType("LD_BLOCK", LdLanguage)
+    val SYMBOL_DEFINITION = IElementType("LD_SYMBOL_DEFINITION", LdLanguage)
     val STATEMENT = IElementType("LD_STATEMENT", LdLanguage)
 }
 class LdParser : PsiParser, LightPsiParser {
@@ -29,6 +30,7 @@ class LdParser : PsiParser, LightPsiParser {
         return builder.treeBuilt
     }
     override fun parseLight(root: IElementType, builder: PsiBuilder) {
+        val definitions = dev.masmld.ld.symbols.LdSymbolAnalysis.analyze(builder.originalText.toString()).definitions.map { it.start }.toSet()
         val file = builder.mark()
         val blocks = ArrayDeque<PsiBuilder.Marker>()
         while (!builder.eof()) {
@@ -41,7 +43,10 @@ class LdParser : PsiParser, LightPsiParser {
                 T.NEWLINE, T.SEMICOLON -> builder.advanceLexer()
                 else -> {
                     val clause = builder.mark()
-                    while (!builder.eof() && builder.tokenType !in boundaries) builder.advanceLexer()
+                    while (!builder.eof() && builder.tokenType !in boundaries) {
+                        if (builder.currentOffset in definitions) { val definition = builder.mark(); builder.advanceLexer(); definition.done(LdElements.SYMBOL_DEFINITION) }
+                        else builder.advanceLexer()
+                    }
                     clause.done(LdElements.STATEMENT)
                 }
             }
@@ -59,7 +64,11 @@ class LdParserDefinition : ParserDefinition {
     override fun getWhitespaceTokens() = TokenSet.create(TokenType.WHITE_SPACE)
     override fun getCommentTokens() = TokenSet.create(T.COMMENT, T.HASH_LINE)
     override fun getStringLiteralElements() = TokenSet.create(T.STRING)
-    override fun createElement(node: ASTNode) = ASTWrapperPsiElement(node)
+    override fun createElement(node: ASTNode) = when (node.elementType) {
+        LdElements.SYMBOL_DEFINITION -> dev.masmld.ld.symbols.LdSymbolDefinition(node)
+        LdElements.BLOCK -> ASTWrapperPsiElement(node)
+        else -> dev.masmld.ld.symbols.LdStatement(node)
+    }
     override fun createFile(viewProvider: FileViewProvider) = object : PsiFileBase(viewProvider, LdLanguage) {
         override fun getFileType() = LdFileType
     }
