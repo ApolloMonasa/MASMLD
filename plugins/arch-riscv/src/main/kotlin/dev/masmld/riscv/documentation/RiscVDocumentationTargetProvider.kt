@@ -34,6 +34,7 @@ private fun targetForElement(element: PsiElement?): DocumentationTarget? {
     val statement = PsiTreeUtil.getParentOfType(element, RiscVStatement::class.java) ?: return null
     val entry = RiscVDocumentationLookup.at(statement.text, element.textRange.startOffset - statement.textRange.startOffset)
         ?: return null
+    if (!dev.masmld.riscv.editing.RiscVIsa.supports(entry.name, dev.masmld.riscv.symbols.RiscVProgram.get(file).targetAt(file, element.textOffset))) return null
     return RiscVDocumentationTarget(element, entry)
 }
 

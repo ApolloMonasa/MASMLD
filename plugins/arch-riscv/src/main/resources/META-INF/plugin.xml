@@ -2,14 +2,23 @@
     <id>dev.masmld.riscv</id>
     <name>MASMLD RISC-V</name>
     <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
-    <description><![CDATA[<p>RISC-V GNU assembly support for MASMLD, with RustRover as the primary tested product.</p><ul><li>Syntax highlighting for instructions, pseudo instructions, registers, directives, labels, comments and strings.</li><li>Offline Chinese quick documentation for 181 instruction, register and directive names.</li><li>Navigate to labels, numeric local labels, constants, exported assembly symbols and same-file .macro definitions.</li><li>External source symbols use the host IDE indexes, including Rust and C/C++ when available.</li></ul><p>Requires MASMLD Core. Select RISC-V under Settings → Languages &amp; Frameworks → MASMLD Assembly. Enable quick documentation on hover in editor settings. No assembler, debugger, C++ demangler, macro expansion or RV32/RV64 legality checking is provided.</p>]]></description>
-    <change-notes><![CDATA[<p>0.7.0: First public release under the MIT license. Adds blue/purple modular cube branding and navigation from same-file macro calls and .purgem to .macro definitions. Includes assembly and linker-script highlighting, offline documentation, file icons and host source-symbol navigation.</p>]]></change-notes>
+    <description><![CDATA[<p>RISC-V GNU assembly support for MASMLD, with RustRover as the primary tested product.</p><ul><li>Syntax highlighting for instructions, pseudo instructions, registers, directives, labels, comments and strings.</li><li>Offline Chinese quick documentation for 465 instruction, register and directive names.</li><li>Navigate to labels, numeric local labels, constants, exported assembly symbols and include-aware .macro definitions.</li><li>External source symbols use the host IDE indexes, including Rust and C/C++ when available.</li></ul><p>Requires MASMLD Core. Select RISC-V under Settings → Languages &amp; Frameworks → MASMLD Assembly. Enable quick documentation on hover in editor settings. Includes completion, parameter information, basic ISA diagnostics, find usages, rename, structure, folding and formatting. External demangling and linked debug-source lookup are optional configured tools. No assembler, debugger or complete macro expansion is provided.</p>]]></description>
+    <change-notes><![CDATA[<p>0.8 development: contextual completion and parameter hints; include-aware symbols; ISA configuration and diagnostics; find usages and rename; structure, folding and formatting; GNU ld expressions and layout hints; optional binary symbol/debug-source navigation. See the repository changelog for coverage and limitations.</p>]]></change-notes>
     <depends>com.intellij.modules.platform</depends>
     <depends>dev.masmld.core</depends>
     <extensions defaultExtensionNs="dev.masmld.core">
         <architecture implementation="dev.masmld.riscv.RiscVArchitectureProvider"/>
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
+        <referencesSearch implementation="dev.masmld.riscv.editing.RiscVNumericUsages"/>
+        <fileBasedIndex implementation="dev.masmld.riscv.symbols.RiscVExportIndex"/>
+        <completion.contributor language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVCompletion"/>
+        <lang.findUsagesProvider language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVUsages"/>
+        <lang.psiStructureViewFactory language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVStructure"/>
+        <lang.foldingBuilder language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVFolding"/>
+        <lang.formatter language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVFormatter"/>
+        <renamePsiElementProcessor implementation="dev.masmld.riscv.editing.RiscVRename"/>
+        <lang.parameterInfo language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVParameterInfo"/>
         <lang.parserDefinition language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.parser.RiscVParserDefinition"/>
         <lang.syntaxHighlighterFactory language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.highlighting.RiscVSyntaxHighlighterFactory"/>
         <annotator language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.highlighting.RiscVAnnotator"/>
@@ -17,4 +26,9 @@
         <platform.backend.documentation.psiTargetProvider implementation="dev.masmld.riscv.documentation.RiscVPsiDocumentationTargetProvider"/>
         <colorSettingsPage implementation="dev.masmld.riscv.highlighting.RiscVColorSettingsPage"/>
     </extensions>
+    <actions>
+        <action id="dev.masmld.DemangleSymbol" class="dev.masmld.riscv.editing.DemangleSymbolAction" text="MASMLD: Demangle and Navigate Symbol" description="Use the configured demangler to find source symbols">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>

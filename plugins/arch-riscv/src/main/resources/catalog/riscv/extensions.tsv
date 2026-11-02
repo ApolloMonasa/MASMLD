@@ -1,0 +1,213 @@
+# name	operands	extensions	summary	xlen (0 = both)	example
+mul	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	mul a0, a1, a2
+mulh	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	mulh a0, a1, a2
+mulhsu	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	mulhsu a0, a1, a2
+mulhu	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	mulhu a0, a1, a2
+div	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	div a0, a1, a2
+divu	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	divu a0, a1, a2
+rem	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	rem a0, a1, a2
+remu	rd, rs1, rs2	m	整数乘法、除法或余数；有符号与无符号行为由助记符区分。	0	remu a0, a1, a2
+mulw	rd, rs1, rs2	m	对低 32 位执行乘除或余数运算，结果符号扩展到 XLEN。	64	mulw a0, a1, a2
+divw	rd, rs1, rs2	m	对低 32 位执行乘除或余数运算，结果符号扩展到 XLEN。	64	divw a0, a1, a2
+divuw	rd, rs1, rs2	m	对低 32 位执行乘除或余数运算，结果符号扩展到 XLEN。	64	divuw a0, a1, a2
+remw	rd, rs1, rs2	m	对低 32 位执行乘除或余数运算，结果符号扩展到 XLEN。	64	remw a0, a1, a2
+remuw	rd, rs1, rs2	m	对低 32 位执行乘除或余数运算，结果符号扩展到 XLEN。	64	remuw a0, a1, a2
+lr.w	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。	0	lr.w a0, (a1)
+sc.w	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。	0	sc.w a0, a2, (a1)
+amoswap.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amoswap.w a0, a2, (a1)
+amoadd.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amoadd.w a0, a2, (a1)
+amoxor.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amoxor.w a0, a2, (a1)
+amoand.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amoand.w a0, a2, (a1)
+amoor.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amoor.w a0, a2, (a1)
+amomin.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amomin.w a0, a2, (a1)
+amomax.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amomax.w a0, a2, (a1)
+amominu.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amominu.w a0, a2, (a1)
+amomaxu.w	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	0	amomaxu.w a0, a2, (a1)
+lr.d	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。	64	lr.d a0, (a1)
+sc.d	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。	64	sc.d a0, a2, (a1)
+amoswap.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amoswap.d a0, a2, (a1)
+amoadd.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amoadd.d a0, a2, (a1)
+amoxor.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amoxor.d a0, a2, (a1)
+amoand.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amoand.d a0, a2, (a1)
+amoor.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amoor.d a0, a2, (a1)
+amomin.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amomin.d a0, a2, (a1)
+amomax.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amomax.d a0, a2, (a1)
+amominu.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amominu.d a0, a2, (a1)
+amomaxu.d	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。	64	amomaxu.d a0, a2, (a1)
+flw	fd, offset(rs1)	f	从内存加载 IEEE 754 浮点数到浮点寄存器。	0	flw fa0, 0(a1)
+fsw	fs2, offset(rs1)	f	将浮点寄存器的数值存入内存。	0	fsw fa2, 0(a1)
+fadd.s	fd, fs1, fs2, [rm]	f	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fadd.s fa0, fa1, fa2, rne
+fsub.s	fd, fs1, fs2, [rm]	f	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fsub.s fa0, fa1, fa2, rne
+fmul.s	fd, fs1, fs2, [rm]	f	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fmul.s fa0, fa1, fa2, rne
+fdiv.s	fd, fs1, fs2, [rm]	f	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fdiv.s fa0, fa1, fa2, rne
+fsqrt.s	fd, fs1, [rm]	f	浮点平方根；支持可选舍入模式。	0	fsqrt.s fa0, fa1, rne
+fmadd.s	fd, fs1, fs2, fs3, [rm]	f	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fmadd.s fa0, fa1, fa2, fa3, rne
+fmsub.s	fd, fs1, fs2, fs3, [rm]	f	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fmsub.s fa0, fa1, fa2, fa3, rne
+fnmsub.s	fd, fs1, fs2, fs3, [rm]	f	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fnmsub.s fa0, fa1, fa2, fa3, rne
+fnmadd.s	fd, fs1, fs2, fs3, [rm]	f	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fnmadd.s fa0, fa1, fa2, fa3, rne
+fsgnj.s	fd, fs1, fs2	f	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnj.s fa0, fa1, fa2
+fsgnjn.s	fd, fs1, fs2	f	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnjn.s fa0, fa1, fa2
+fsgnjx.s	fd, fs1, fs2	f	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnjx.s fa0, fa1, fa2
+fmin.s	fd, fs1, fs2	f	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fmin.s fa0, fa1, fa2
+fmax.s	fd, fs1, fs2	f	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fmax.s fa0, fa1, fa2
+feq.s	rd, fs1, fs2	f	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	feq.s a0, fa1, fa2
+flt.s	rd, fs1, fs2	f	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	flt.s a0, fa1, fa2
+fle.s	rd, fs1, fs2	f	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	fle.s a0, fa1, fa2
+fclass.s	rd, fs1	f	将浮点值分类为十类位掩码，写入整数寄存器。	0	fclass.s a0, fa1
+fcvt.w.s	rd, fs1, [rm]	f	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	0	fcvt.w.s a0, fa1, rne
+fcvt.s.w	fd, rs1, [rm]	f	将整数转换为浮点值，支持可选舍入模式。	0	fcvt.s.w fa0, a1, rne
+fcvt.wu.s	rd, fs1, [rm]	f	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	0	fcvt.wu.s a0, fa1, rne
+fcvt.s.wu	fd, rs1, [rm]	f	将整数转换为浮点值，支持可选舍入模式。	0	fcvt.s.wu fa0, a1, rne
+fcvt.l.s	rd, fs1, [rm]	f	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	64	fcvt.l.s a0, fa1, rne
+fcvt.s.l	fd, rs1, [rm]	f	将整数转换为浮点值，支持可选舍入模式。	64	fcvt.s.l fa0, a1, rne
+fcvt.lu.s	rd, fs1, [rm]	f	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	64	fcvt.lu.s a0, fa1, rne
+fcvt.s.lu	fd, rs1, [rm]	f	将整数转换为浮点值，支持可选舍入模式。	64	fcvt.s.lu fa0, a1, rne
+fld	fd, offset(rs1)	d	从内存加载 IEEE 754 浮点数到浮点寄存器。	0	fld fa0, 0(a1)
+fsd	fs2, offset(rs1)	d	将浮点寄存器的数值存入内存。	0	fsd fa2, 0(a1)
+fadd.d	fd, fs1, fs2, [rm]	d	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fadd.d fa0, fa1, fa2, rne
+fsub.d	fd, fs1, fs2, [rm]	d	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fsub.d fa0, fa1, fa2, rne
+fmul.d	fd, fs1, fs2, [rm]	d	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fmul.d fa0, fa1, fa2, rne
+fdiv.d	fd, fs1, fs2, [rm]	d	浮点算术；rm 为可选舍入模式，异常状态写入浮点状态寄存器。	0	fdiv.d fa0, fa1, fa2, rne
+fsqrt.d	fd, fs1, [rm]	d	浮点平方根；支持可选舍入模式。	0	fsqrt.d fa0, fa1, rne
+fmadd.d	fd, fs1, fs2, fs3, [rm]	d	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fmadd.d fa0, fa1, fa2, fa3, rne
+fmsub.d	fd, fs1, fs2, fs3, [rm]	d	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fmsub.d fa0, fa1, fa2, fa3, rne
+fnmsub.d	fd, fs1, fs2, fs3, [rm]	d	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fnmsub.d fa0, fa1, fa2, fa3, rne
+fnmadd.d	fd, fs1, fs2, fs3, [rm]	d	浮点融合乘加或其符号变体，仅执行一次舍入。	0	fnmadd.d fa0, fa1, fa2, fa3, rne
+fsgnj.d	fd, fs1, fs2	d	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnj.d fa0, fa1, fa2
+fsgnjn.d	fd, fs1, fs2	d	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnjn.d fa0, fa1, fa2
+fsgnjx.d	fd, fs1, fs2	d	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fsgnjx.d fa0, fa1, fa2
+fmin.d	fd, fs1, fs2	d	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fmin.d fa0, fa1, fa2
+fmax.d	fd, fs1, fs2	d	浮点符号注入或最小/最大值运算；具体 NaN 规则见 ISA 规范。	0	fmax.d fa0, fa1, fa2
+feq.d	rd, fs1, fs2	d	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	feq.d a0, fa1, fa2
+flt.d	rd, fs1, fs2	d	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	flt.d a0, fa1, fa2
+fle.d	rd, fs1, fs2	d	浮点比较，结果写入整数寄存器；异常行为依比较操作而定。	0	fle.d a0, fa1, fa2
+fclass.d	rd, fs1	d	将浮点值分类为十类位掩码，写入整数寄存器。	0	fclass.d a0, fa1
+fcvt.w.d	rd, fs1, [rm]	d	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	0	fcvt.w.d a0, fa1, rne
+fcvt.d.w	fd, rs1, [rm]	d	将整数转换为浮点值，支持可选舍入模式。	0	fcvt.d.w fa0, a1, rne
+fcvt.wu.d	rd, fs1, [rm]	d	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	0	fcvt.wu.d a0, fa1, rne
+fcvt.d.wu	fd, rs1, [rm]	d	将整数转换为浮点值，支持可选舍入模式。	0	fcvt.d.wu fa0, a1, rne
+fcvt.l.d	rd, fs1, [rm]	d	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	64	fcvt.l.d a0, fa1, rne
+fcvt.d.l	fd, rs1, [rm]	d	将整数转换为浮点值，支持可选舍入模式。	64	fcvt.d.l fa0, a1, rne
+fcvt.lu.d	rd, fs1, [rm]	d	将浮点值转换为整数，溢出和舍入行为遵循 ISA 规范。	64	fcvt.lu.d a0, fa1, rne
+fcvt.d.lu	fd, rs1, [rm]	d	将整数转换为浮点值，支持可选舍入模式。	64	fcvt.d.lu fa0, a1, rne
+fcvt.s.d	fd, fs1, [rm]	d	双精度转换为单精度，可能舍入。	0	fcvt.s.d fa0, fa1, rne
+fcvt.d.s	fd, fs1	d	单精度转换为双精度。	0	fcvt.d.s fa0, fa1
+fmv.x.w	rd, fs1	f	单精度位模式复制到整数寄存器，RV64 时符号扩展。	0	fmv.x.w a0, fa1
+fmv.w.x	fd, rs1	f	整数寄存器低 32 位复制到单精度浮点寄存器。	0	fmv.w.x fa0, a1
+fmv.x.d	rd, fs1	d	双精度位模式复制到整数寄存器。	64	fmv.x.d a0, fa1
+fmv.d.x	fd, rs1	d	整数寄存器位模式复制到双精度浮点寄存器。	64	fmv.d.x fa0, a1
+csrrw	rd, csr, rs1	zicsr	原子读取并写入、置位或清零 CSR；特权与只读限制取决于 CSR。	0	csrrw a0, 0x300, a1
+csrrs	rd, csr, rs1	zicsr	原子读取并写入、置位或清零 CSR；特权与只读限制取决于 CSR。	0	csrrs a0, 0x300, a1
+csrrc	rd, csr, rs1	zicsr	原子读取并写入、置位或清零 CSR；特权与只读限制取决于 CSR。	0	csrrc a0, 0x300, a1
+csrrwi	rd, csr, uimm	zicsr	使用 5 位无符号立即数操作 CSR；读写副作用依具体指令而定。	0	csrrwi a0, 0x300, 1
+csrrsi	rd, csr, uimm	zicsr	使用 5 位无符号立即数操作 CSR；读写副作用依具体指令而定。	0	csrrsi a0, 0x300, 1
+csrrci	rd, csr, uimm	zicsr	使用 5 位无符号立即数操作 CSR；读写副作用依具体指令而定。	0	csrrci a0, 0x300, 1
+fence.i		zifencei	同步当前 hart 的指令获取与先前的数据存储。	0	fence.i
+c.nop		c	16 位压缩指令；分别对应空操作和断点陷入。	0	c.nop
+c.ebreak		c	16 位压缩指令；分别对应空操作和断点陷入。	0	c.ebreak
+c.addi	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.addi a0, 1
+c.li	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.li a0, 1
+c.lui	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.lui a0, 1
+c.andi	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.andi a0, 1
+c.slli	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.slli a0, 1
+c.srli	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.srli a0, 1
+c.srai	rd, imm	c	16 位压缩整数立即数指令；寄存器和立即数编码有额外限制。	0	c.srai a0, 1
+c.addi16sp	rd, imm	c	压缩栈指针调整，rd 必须为 sp，立即数有编码约束。	0	c.addi16sp sp, 16
+c.addi4spn	rd, rs1, imm	c	压缩栈指针相对地址生成，基址必须为 sp。	0	c.addi4spn a0, sp, 16
+c.mv	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.mv a0, a2
+c.add	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.add a0, a2
+c.sub	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.sub a0, a2
+c.xor	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.xor a0, a2
+c.or	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.or a0, a2
+c.and	rd, rs2	c	16 位压缩寄存器运算；部分指令仅能使用紧凑寄存器组。	0	c.and a0, a2
+c.subw	rd, rs2	c	压缩 32 位字运算，结果符号扩展。	64	c.subw a0, a2
+c.addw	rd, rs2	c	压缩 32 位字运算，结果符号扩展。	64	c.addw a0, a2
+c.addiw	rd, imm	c	压缩 32 位字立即数加法，结果符号扩展。	64	c.addiw a0, 1
+c.j	target	c	压缩无条件跳转，不写入链接寄存器。	0	c.j label
+c.jal	target	c	压缩跳转并保存返回地址，仅 RV32。	32	c.jal label
+c.jr	rs1	c	压缩间接跳转，c.jalr 保存返回地址。	0	c.jr a1
+c.jalr	rs1	c	压缩间接跳转，c.jalr 保存返回地址。	0	c.jalr a1
+c.beqz	rs1, target	c	压缩零比较条件分支。	0	c.beqz a1, label
+c.bnez	rs1, target	c	压缩零比较条件分支。	0	c.bnez a1, label
+c.lw	rd, offset(rs1)	c	压缩内存加载，立即数及寄存器有编码限制。	0	c.lw a0, 0(a1)
+c.lwsp	rd, offset(rs1)	c	压缩栈相对加载，基址必须为 sp。	0	c.lwsp a0, 0(sp)
+c.ld	rd, offset(rs1)	c	压缩内存加载，立即数及寄存器有编码限制。	64	c.ld a0, 0(a1)
+c.ldsp	rd, offset(rs1)	c	压缩栈相对加载，基址必须为 sp。	64	c.ldsp a0, 0(sp)
+c.flw	fd, offset(rs1)	c+f	压缩内存加载，立即数及寄存器有编码限制。	32	c.flw fa0, 0(a1)
+c.flwsp	fd, offset(rs1)	c+f	压缩栈相对加载，基址必须为 sp。	32	c.flwsp fa0, 0(sp)
+c.fld	fd, offset(rs1)	c+d	压缩内存加载，立即数及寄存器有编码限制。	0	c.fld fa0, 0(a1)
+c.fldsp	fd, offset(rs1)	c+d	压缩栈相对加载，基址必须为 sp。	0	c.fldsp fa0, 0(sp)
+c.sw	rs2, offset(rs1)	c	压缩内存存储，立即数及寄存器有编码限制。	0	c.sw a2, 0(a1)
+c.swsp	rs2, offset(rs1)	c	压缩栈相对存储，基址必须为 sp。	0	c.swsp a2, 0(sp)
+c.sd	rs2, offset(rs1)	c	压缩内存存储，立即数及寄存器有编码限制。	64	c.sd a2, 0(a1)
+c.sdsp	rs2, offset(rs1)	c	压缩栈相对存储，基址必须为 sp。	64	c.sdsp a2, 0(sp)
+c.fsw	fs2, offset(rs1)	c+f	压缩内存存储，立即数及寄存器有编码限制。	32	c.fsw fa2, 0(a1)
+c.fswsp	fs2, offset(rs1)	c+f	压缩栈相对存储，基址必须为 sp。	32	c.fswsp fa2, 0(sp)
+c.fsd	fs2, offset(rs1)	c+d	压缩内存存储，立即数及寄存器有编码限制。	0	c.fsd fa2, 0(a1)
+c.fsdsp	fs2, offset(rs1)	c+d	压缩栈相对存储，基址必须为 sp。	0	c.fsdsp fa2, 0(sp)
+lr.w.aq	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .aq 指定 acquire/release 排序。	0	lr.w.aq a0, (a1)
+lr.w.rl	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .rl 指定 acquire/release 排序。	0	lr.w.rl a0, (a1)
+lr.w.aqrl	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .aqrl 指定 acquire/release 排序。	0	lr.w.aqrl a0, (a1)
+sc.w.aq	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .aq 指定 acquire/release 排序。	0	sc.w.aq a0, a2, (a1)
+sc.w.rl	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .rl 指定 acquire/release 排序。	0	sc.w.rl a0, a2, (a1)
+sc.w.aqrl	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .aqrl 指定 acquire/release 排序。	0	sc.w.aqrl a0, a2, (a1)
+amoswap.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amoswap.w.aq a0, a2, (a1)
+amoswap.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amoswap.w.rl a0, a2, (a1)
+amoswap.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amoswap.w.aqrl a0, a2, (a1)
+amoadd.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amoadd.w.aq a0, a2, (a1)
+amoadd.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amoadd.w.rl a0, a2, (a1)
+amoadd.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amoadd.w.aqrl a0, a2, (a1)
+amoxor.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amoxor.w.aq a0, a2, (a1)
+amoxor.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amoxor.w.rl a0, a2, (a1)
+amoxor.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amoxor.w.aqrl a0, a2, (a1)
+amoand.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amoand.w.aq a0, a2, (a1)
+amoand.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amoand.w.rl a0, a2, (a1)
+amoand.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amoand.w.aqrl a0, a2, (a1)
+amoor.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amoor.w.aq a0, a2, (a1)
+amoor.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amoor.w.rl a0, a2, (a1)
+amoor.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amoor.w.aqrl a0, a2, (a1)
+amomin.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amomin.w.aq a0, a2, (a1)
+amomin.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amomin.w.rl a0, a2, (a1)
+amomin.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amomin.w.aqrl a0, a2, (a1)
+amomax.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amomax.w.aq a0, a2, (a1)
+amomax.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amomax.w.rl a0, a2, (a1)
+amomax.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amomax.w.aqrl a0, a2, (a1)
+amominu.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amominu.w.aq a0, a2, (a1)
+amominu.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amominu.w.rl a0, a2, (a1)
+amominu.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amominu.w.aqrl a0, a2, (a1)
+amomaxu.w.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	0	amomaxu.w.aq a0, a2, (a1)
+amomaxu.w.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	0	amomaxu.w.rl a0, a2, (a1)
+amomaxu.w.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	0	amomaxu.w.aqrl a0, a2, (a1)
+lr.d.aq	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .aq 指定 acquire/release 排序。	64	lr.d.aq a0, (a1)
+lr.d.rl	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .rl 指定 acquire/release 排序。	64	lr.d.rl a0, (a1)
+lr.d.aqrl	rd, (rs1)	a	建立保留并加载内存值。保留集合与失败条件由体系结构约束。 .aqrl 指定 acquire/release 排序。	64	lr.d.aqrl a0, (a1)
+sc.d.aq	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .aq 指定 acquire/release 排序。	64	sc.d.aq a0, a2, (a1)
+sc.d.rl	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .rl 指定 acquire/release 排序。	64	sc.d.rl a0, a2, (a1)
+sc.d.aqrl	rd, rs2, (rs1)	a	条件存储；rd 为零表示成功，非零表示失败。 .aqrl 指定 acquire/release 排序。	64	sc.d.aqrl a0, a2, (a1)
+amoswap.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amoswap.d.aq a0, a2, (a1)
+amoswap.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amoswap.d.rl a0, a2, (a1)
+amoswap.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amoswap.d.aqrl a0, a2, (a1)
+amoadd.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amoadd.d.aq a0, a2, (a1)
+amoadd.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amoadd.d.rl a0, a2, (a1)
+amoadd.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amoadd.d.aqrl a0, a2, (a1)
+amoxor.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amoxor.d.aq a0, a2, (a1)
+amoxor.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amoxor.d.rl a0, a2, (a1)
+amoxor.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amoxor.d.aqrl a0, a2, (a1)
+amoand.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amoand.d.aq a0, a2, (a1)
+amoand.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amoand.d.rl a0, a2, (a1)
+amoand.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amoand.d.aqrl a0, a2, (a1)
+amoor.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amoor.d.aq a0, a2, (a1)
+amoor.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amoor.d.rl a0, a2, (a1)
+amoor.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amoor.d.aqrl a0, a2, (a1)
+amomin.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amomin.d.aq a0, a2, (a1)
+amomin.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amomin.d.rl a0, a2, (a1)
+amomin.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amomin.d.aqrl a0, a2, (a1)
+amomax.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amomax.d.aq a0, a2, (a1)
+amomax.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amomax.d.rl a0, a2, (a1)
+amomax.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amomax.d.aqrl a0, a2, (a1)
+amominu.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amominu.d.aq a0, a2, (a1)
+amominu.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amominu.d.rl a0, a2, (a1)
+amominu.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amominu.d.aqrl a0, a2, (a1)
+amomaxu.d.aq	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aq 指定 acquire/release 排序。	64	amomaxu.d.aq a0, a2, (a1)
+amomaxu.d.rl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .rl 指定 acquire/release 排序。	64	amomaxu.d.rl a0, a2, (a1)
+amomaxu.d.aqrl	rd, rs2, (rs1)	a	原子读改写；rd 接收旧值，操作数和地址由 rs2、rs1 指定。 .aqrl 指定 acquire/release 排序。	64	amomaxu.d.aqrl a0, a2, (a1)

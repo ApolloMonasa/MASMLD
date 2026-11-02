@@ -102,6 +102,8 @@ object RiscVSymbols {
             for ((index, token) in operands.withIndex()) {
                 if (token.type != T.IDENTIFIER && token.type != T.LOCAL_REFERENCE) continue
                 if (roles[token.start] == RiscVRole.REGISTER || token.text == ".") continue
+                if (command.text == "fence" && token.text.all { it in "iorw" }) continue
+                if (token.text in dev.masmld.riscv.editing.RiscVIsa.roundingModes && dev.masmld.riscv.editing.RiscVIsa.instructions.any { it.name == command.text && it.operands.contains("[rm]") }) continue
                 val previous = operands.getOrNull(index - 1)?.text
                 if (previous in setOf("%", "@")) continue // Relocation names and suffixes, not their arguments.
                 references += AssemblySymbolReference(token.text, token.start, token.end)

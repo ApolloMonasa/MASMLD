@@ -17,6 +17,7 @@ class RiscVSymbolDefinition(node: ASTNode) : ASTWrapperPsiElement(node), PsiName
     override fun getNameIdentifier(): PsiElement? = node.findChildByType(TokenSet.create(RiscVTokens.IDENTIFIER, RiscVTokens.NUMBER))?.psi
     override fun getName(): String? = nameIdentifier?.text
     override fun getTextOffset(): Int = nameIdentifier?.textRange?.startOffset ?: super.getTextOffset()
+    override fun getUseScope(): com.intellij.psi.search.SearchScope = if (name?.all(Char::isDigit) == true) com.intellij.psi.search.LocalSearchScope(containingFile) else super.getUseScope()
     override fun getIcon(flags: Int) = AssemblyIcons.FILE
     override fun setName(name: String): PsiElement {
         val identifier = nameIdentifier ?: return this

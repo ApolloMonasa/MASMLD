@@ -1,5 +1,6 @@
 package dev.masmld.riscv.highlighting
 
+import dev.masmld.riscv.editing.RiscVIsa
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
 import dev.masmld.riscv.lexer.RiscVLexer
@@ -28,10 +29,10 @@ object RiscVClassifier {
     private val pseudoAddress = words("li la lla lga")
     private val pseudoNoRegisters = words("nop ret j tail")
     private val pseudo = pseudoTwoRegisters + pseudoBranches + pseudoSwappedBranches + pseudoAddress +
-        pseudoNoRegisters + words("jr call")
+        pseudoNoRegisters + words("jr call") + RiscVIsa.csrAliases.keys
     private val instructions = threeRegisters + twoRegistersImmediate + branches + loads + stores + upper +
         noRegisters + words("jal jalr")
-    private val directives = words(".text .data .bss .rodata .section .pushsection .popsection .previous .subsection .globl .global .local .weak .hidden .type .size .align .balign .p2align .byte .2byte .half .short .4byte .word .long .8byte .dword .quad .ascii .asciz .string .zero .space .skip .fill .equ .equiv .set .comm .lcomm .file .loc .ident .include .incbin .macro .endm .exitm .rept .endr .irp .irpc .if .ifdef .ifndef .ifeq .ifne .else .elseif .endif .option .attribute .insn .variant_cc .dtprelword .dtpreldword .uleb128 .sleb128 .org .end .cfi_startproc .cfi_endproc .cfi_def_cfa .cfi_def_cfa_offset .cfi_offset .cfi_restore .cfi_adjust_cfa_offset")
+    private val directives = words(".text .data .bss .rodata .section .pushsection .popsection .previous .subsection .globl .global .local .weak .hidden .type .size .align .balign .p2align .byte .2byte .half .short .4byte .word .long .8byte .dword .quad .ascii .asciz .string .zero .space .skip .fill .equ .equiv .set .comm .lcomm .file .loc .ident .include .incbin .macro .purgem .endm .exitm .rept .endr .irp .irpc .if .ifdef .ifndef .ifeq .ifne .else .elseif .endif .option .attribute .insn .variant_cc .dtprelword .dtpreldword .uleb128 .sleb128 .org .end .cfi_startproc .cfi_endproc .cfi_def_cfa .cfi_def_cfa_offset .cfi_offset .cfi_restore .cfi_adjust_cfa_offset")
 
     fun classify(source: CharSequence): List<RiscVHighlight> {
         val result = mutableListOf<RiscVHighlight>()
@@ -66,7 +67,8 @@ object RiscVClassifier {
             return
         }
         if (name in directives) { mark(tokens[head], RiscVRole.DIRECTIVE); return }
-        if (name !in instructions && name !in pseudo) return // Unknown macros/extensions remain ordinary identifiers.
+        val extension = RiscVIsa.instructions.firstOrNull { it.name == name }
+        if (name !in instructions && name !in pseudo && extension == null) return // Unknown macros/extensions remain ordinary identifiers.
         mark(tokens[head], if (name in pseudo) RiscVRole.PSEUDO_INSTRUCTION else RiscVRole.INSTRUCTION)
         val operands = mutableListOf<MutableList<Token>>(mutableListOf())
         var depth = 0
@@ -80,7 +82,7 @@ object RiscVClassifier {
         }
         fun register(index: Int) {
             val operand = operands.getOrNull(index) ?: return
-            if (operand.size == 1 && operand[0].type == T.IDENTIFIER && operand[0].text in registerNames) {
+            if (operand.size == 1 && operand[0].type == T.IDENTIFIER && operand[0].text in registerNames + RiscVIsa.floatingRegisters) {
                 mark(operand[0], RiscVRole.REGISTER)
             }
         }
@@ -92,6 +94,22 @@ object RiscVClassifier {
             if (pos >= 2 && operand[pos - 2].text == "%" && operand[pos - 1].type == T.IDENTIFIER) return
             val token = operand[pos + 1]
             if (token.type == T.IDENTIFIER && token.text in registerNames) mark(token, RiscVRole.REGISTER)
+        }
+        fun csr(index: Int) {
+            val token = operands.getOrNull(index)?.singleOrNull() ?: return
+            if (token.text in RiscVIsa.csrNames) mark(token, RiscVRole.REGISTER)
+        }
+        if (name in RiscVIsa.csrAliases) {
+            if (name == "csrr") { register(0); csr(1) } else { csr(0); if (!name.endsWith('i')) register(1) }
+            return
+        }
+        if (extension != null) {
+            extension.operands.split(',').forEachIndexed { index, operand ->
+                if (operand.trim() in setOf("rd", "rs1", "rs2", "fd", "fs1", "fs2", "fs3")) register(index)
+                if (operand.contains("(rs1)")) baseRegister(index)
+                if (operand.trim() == "csr") csr(index)
+            }
+            return
         }
         when (name) {
             in threeRegisters -> { register(0); register(1); register(2) }

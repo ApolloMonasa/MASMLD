@@ -113,5 +113,13 @@ DIRECTIVE	.option	.option argument	调整 RISC-V 汇编选项，例如 push/pop�
 DIRECTIVE	.attribute	.attribute tag, value	设置目标文件的 RISC-V 属性元数据。	属性可描述指令集；插件当前不会据此切换架构或验证指令。	.attribute arch, "rv64i"	GNU as / RISC-V	gasrv
 DIRECTIVE	.macro	.macro name [arguments]	开始定义汇编宏。	以 .endm 结束；插件不执行宏展开。	.macro save reg	GNU as / RISC-V	gas
 DIRECTIVE	.endm	.endm	结束当前宏定义。	与 .macro 配对。	.endm	GNU as / RISC-V	gas
-DIRECTIVE	.include	.include "filename"	在汇编时包含另一个源文件。	插件当前不读取或展开包含文件。	.include "constants.inc"	GNU as / RISC-V	gas
+DIRECTIVE	.include	.include "filename"	在汇编时包含另一个源文件。	插件按静态包含图提供跳转和符号解析；不执行预处理或宏实例化。	.include "constants.inc"	GNU as / RISC-V	gas
 DIRECTIVE	.insn	.insn type, operands / [length,] value	按指令格式或编码值输出一条指令。	格式依赖 GNU as 版本；插件当前不校验自定义格式的操作数。	.insn 4, 0x00000013	GNU as / RISC-V	gasrv
+DIRECTIVE	.purgem	.purgem name	清除当前宏定义，允许之后用相同名称重新定义。	清除后继续调用旧宏名会失去该定义；不清除普通标签或常量。	.purgem save	GNU as	gas
+PSEUDO_INSTRUCTION	csrr	csrr rd, csr	CSR 访问伪指令，对应 csrrs rd, csr, zero。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrr a0, mstatus	Zicsr	asm
+PSEUDO_INSTRUCTION	csrw	csrw csr, rs1	CSR 访问伪指令，对应 csrrw zero, csr, rs1。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrw mstatus, a0	Zicsr	asm
+PSEUDO_INSTRUCTION	csrs	csrs csr, rs1	CSR 访问伪指令，对应 csrrs zero, csr, rs1。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrs mstatus, a0	Zicsr	asm
+PSEUDO_INSTRUCTION	csrc	csrc csr, rs1	CSR 访问伪指令，对应 csrrc zero, csr, rs1。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrc mstatus, a0	Zicsr	asm
+PSEUDO_INSTRUCTION	csrwi	csrwi csr, uimm	CSR 访问伪指令，对应 csrrwi zero, csr, uimm。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrwi mstatus, 1	Zicsr	asm
+PSEUDO_INSTRUCTION	csrsi	csrsi csr, uimm	CSR 访问伪指令，对应 csrrsi zero, csr, uimm。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrsi mstatus, 1	Zicsr	asm
+PSEUDO_INSTRUCTION	csrci	csrci csr, uimm	CSR 访问伪指令，对应 csrrci zero, csr, uimm。	需要 Zicsr 扩展；具体 CSR 的访问权限由特权级与实现决定。	csrci mstatus, 1	Zicsr	asm

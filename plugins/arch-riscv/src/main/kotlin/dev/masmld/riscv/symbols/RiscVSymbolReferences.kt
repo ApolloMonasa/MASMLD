@@ -30,40 +30,38 @@ object RiscVSymbolReferences {
     }
     fun references(statement: RiscVStatement): Array<PsiReference> {
         val range = statement.textRange
-        return symbols(statement.containingFile).references.filter { it.start >= range.startOffset && it.end <= range.endOffset }
-            .map { SymbolReference(statement, it) }.toTypedArray()
+        return (RiscVProgram.get(statement.containingFile).references(statement.containingFile, range.startOffset, range.endOffset)
+            .map { (reference, offset) -> SymbolReference(statement, reference, offset) } + dev.masmld.core.source.IncludeFiles.references(statement, true)).toTypedArray()
     }
     private fun declaration(file: PsiFile, definition: AssemblySymbolDefinition): RiscVSymbolDefinition? {
         val leaf = file.findElementAt(definition.start) ?: return null
         return leaf.parent as? RiscVSymbolDefinition
     }
-    private class SymbolReference(statement: RiscVStatement, private val use: AssemblySymbolReference) :
+    private class SymbolReference(statement: RiscVStatement, private val use: AssemblySymbolReference, private val offset: Int) :
         PsiPolyVariantReferenceBase<RiscVStatement>(statement,
-            TextRange(use.start - statement.textRange.startOffset, use.end - statement.textRange.startOffset), true) {
+            TextRange(offset - statement.textRange.startOffset, offset + use.end - use.start - statement.textRange.startOffset), true) {
         override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
             val file = element.containingFile
-            val local = symbols(file).resolve(use).mapNotNull { declaration(file, it) }
+            val program = RiscVProgram.get(file)
+            val local = program.symbols.resolve(use).mapNotNull(program::definition)
             if (use.macroTarget != null || local.isNotEmpty() || use.name.matches(Regex("[0-9]+[fb]")) || use.name.startsWith(".L")) {
                 return local.map { PsiElementResolveResult(it) }.toTypedArray()
             }
             val project = element.project
             if (DumbService.isDumb(project)) return ResolveResult.EMPTY_ARRAY
-            val word = Regex("[\\p{L}\\p{N}_]+").findAll(use.name).map { it.value }.maxByOrNull { it.length }
-                ?: return ResolveResult.EMPTY_ARRAY
             val targets = mutableListOf<PsiElement>()
-            val scope = GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(project), AssemblyFileType)
+            val scope = GlobalSearchScope.projectScope(project)
             try {
-                // Use the word index to narrow candidates; do not scan every assembly file on hover.
-                PsiSearchHelper.getInstance(project).processCandidateFilesForText(scope, UsageSearchContext.ANY, true, word) { virtualFile ->
+                // Exact exported-name index, including ordinary .inc files; never scan the entire project.
+                for (virtualFile in com.intellij.util.indexing.FileBasedIndex.getInstance().getContainingFiles(RiscVExportIndex.ID, use.name, scope)) {
                     ProgressManager.checkCanceled()
-                    if (virtualFile != file.virtualFile) {
+                    if (virtualFile != file.virtualFile && virtualFile.length <= 1_000_000 && (virtualFile.fileType == AssemblyFileType || virtualFile.extension?.lowercase() == "inc")) {
                         val candidate = PsiManager.getInstance(project).findFile(virtualFile)
-                        if (candidate != null && candidate.language.isKindOf(RiscVLanguage)) {
-                            symbols(candidate).definitions.filter { it.exported && it.name == use.name }
-                                .mapNotNullTo(targets) { declaration(candidate, it) }
+                        if (candidate != null && (candidate.language.isKindOf(RiscVLanguage) || virtualFile.extension?.lowercase() == "inc")) {
+                            RiscVProgram.get(candidate).let { other -> other.symbols.definitions.filter { it.exported && it.name == use.name }
+                                .mapNotNullTo(targets, other::definition) }
                         }
                     }
-                    true
                 }
             } catch (_: IndexNotReadyException) {
                 return ResolveResult.EMPTY_ARRAY

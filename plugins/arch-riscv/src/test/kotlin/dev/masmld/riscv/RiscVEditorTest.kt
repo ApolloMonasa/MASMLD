@@ -1,0 +1,107 @@
+package dev.masmld.riscv
+
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.searches.ReferencesSearch
+import dev.masmld.core.settings.AssemblySettings
+import dev.masmld.core.source.SourceText
+
+/** Real platform PSI/index/editor integration in unit-test mode; no IDE license or GUI process. */
+class RiscVEditorTest : BasePlatformTestCase() {
+    override fun setUp() { super.setUp(); AssemblySettings.getInstance(project).selectArchitecture("riscv") }
+    fun testLocalReferencesAndFindUsages() {
+        val file = myFixture.addFileToProject("entry.asm", "target: nop\nj target\n")
+        myFixture.configureFromExistingVirtualFile(file.virtualFile)
+        assertEquals(RiscVLanguage, myFixture.file.language)
+        val reference = myFixture.file.findReferenceAt(myFixture.file.text.lastIndexOf("target"))!!
+        val target = reference.resolve()!!
+        assertEquals("target", (target as com.intellij.psi.PsiNamedElement).name)
+        assertEquals(1, ReferencesSearch.search(target).findAll().size)
+    }
+    fun testIncludedMacroAndIncludePathNavigate() {
+        myFixture.addFileToProject("macros.inc", ".macro save reg\nnop\n.endm\n")
+        val file = myFixture.addFileToProject("entry.asm", ".include \"macros.inc\"\nsave ra\n")
+        myFixture.configureFromExistingVirtualFile(file.virtualFile)
+        assertEquals("macros.inc", myFixture.file.findReferenceAt(myFixture.file.text.lastIndexOf("save"))!!.resolve()!!.containingFile.name)
+        assertEquals("macros.inc", (myFixture.file.findReferenceAt(myFixture.file.text.indexOf("macros.inc"))!!.resolve() as com.intellij.psi.PsiFile).name)
+    }
+    fun testSymbolCompletionAndConservativeReformat() {
+        myFixture.configureByText("entry.asm", "target: nop\nj tar<caret>")
+        val variants = myFixture.completeBasic()
+        assertTrue(variants?.any { it.lookupString == "target" } == true || myFixture.file.text.endsWith("j target"))
+        myFixture.configureByText("format.asm", "target: add a0,a1,a2\n.asciz \"a,b\"\n")
+        val before = SourceText.tokens(myFixture.file.text).map { it.text }
+        WriteCommandAction.runWriteCommandAction(project) { CodeStyleManager.getInstance(project).reformat(myFixture.file) }
+        assertEquals(before, SourceText.tokens(myFixture.file.text).map { it.text })
+        assertTrue(myFixture.file.text.contains("a0, a1, a2"))
+        assertTrue(myFixture.file.text.contains("\"a,b\""))
+    }
+    fun testMacroRenamePreservesLabelNamespace() {
+        myFixture.configureByText("rename.asm", ".macro <caret>save reg\nnop\n.endm\nsave: nop\nsave ra\nj save\n.purgem save\n")
+        myFixture.renameElementAtCaret("push_reg")
+        assertTrue(myFixture.file.text.contains(".macro push_reg"))
+        assertTrue(myFixture.file.text.contains("push_reg ra"))
+        assertTrue(myFixture.file.text.contains(".purgem push_reg"))
+        assertTrue(myFixture.file.text.contains("save: nop"))
+        assertTrue(myFixture.file.text.contains("j save"))
+    }
+    fun testProjectExportCompletionAndCrossFileRename() {
+        myFixture.addFileToProject("library.asm", ".globl external_fn\nexternal_fn: ret\n")
+        val caller = myFixture.addFileToProject("caller.asm", "call external_fn\n")
+        myFixture.configureByText("completion.asm", "call external_<caret>")
+        val variants = myFixture.completeBasic()
+        assertTrue(variants?.any { it.lookupString == "external_fn" } == true || myFixture.file.text.contains("call external_fn"))
+        myFixture.configureFromExistingVirtualFile(caller.virtualFile)
+        val target = myFixture.file.findReferenceAt(myFixture.file.text.indexOf("external_fn"))!!.resolve()!!
+        assertEquals("library.asm", target.containingFile.name)
+        com.intellij.refactoring.rename.RenameProcessor(project, target, "renamed_fn", false, false).run()
+        assertTrue(caller.text.contains("call renamed_fn"))
+    }
+    fun testIncludeEditsInvalidateResolution() {
+        val included = myFixture.addFileToProject("constants.inc", ".equ VALUE, 1\n")
+        val root = myFixture.addFileToProject("entry.asm", ".include \"constants.inc\"\nli a0, VALUE\n")
+        myFixture.configureFromExistingVirtualFile(root.virtualFile)
+        assertNotNull(myFixture.file.findReferenceAt(myFixture.file.text.lastIndexOf("VALUE"))!!.resolve())
+        WriteCommandAction.runWriteCommandAction(project) {
+            val document = com.intellij.psi.PsiDocumentManager.getInstance(project).getDocument(included)!!
+            document.setText(".equ OTHER, 1\n")
+            com.intellij.psi.PsiDocumentManager.getInstance(project).commitDocument(document)
+        }
+        assertNull(myFixture.file.findReferenceAt(myFixture.file.text.lastIndexOf("VALUE"))!!.resolve())
+    }
+
+    fun testNumericRenameIsRejectedBeforeAnyEdits() {
+        myFixture.configureByText("numeric.asm", "1: nop\nj 1b\n")
+        val original = myFixture.file.text
+        val definition = myFixture.file.findElementAt(0)!!.parent
+        org.junit.Assert.assertThrows(com.intellij.util.IncorrectOperationException::class.java) {
+            WriteCommandAction.runWriteCommandAction(project) { dev.masmld.riscv.editing.RiscVRename().renameElement(definition, "named", emptyArray(), null) }
+        }
+        assertEquals(original, myFixture.file.text)
+    }
+    fun testRepeatedConstantAssignmentsRenameTogether() {
+        myFixture.configureByText("constants.asm", ".set <caret>VALUE,1\n.word VALUE\n.set VALUE,2\n.word VALUE\n")
+        myFixture.renameElementAtCaret("COUNT")
+        assertFalse(myFixture.file.text.contains("VALUE"))
+        assertEquals(4, Regex("COUNT").findAll(myFixture.file.text).count())
+    }
+
+    fun testNumericFindUsagesSelectsOnlyTheNearestDefinition() {
+        myFixture.configureByText("numeric.asm", "1: nop\nj 1b\n1: ret\nj 1b\n")
+        val definitions = com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(myFixture.file, dev.masmld.riscv.psi.RiscVSymbolDefinition::class.java).toList()
+        assertEquals(2, definitions.size)
+        assertEquals(1, ReferencesSearch.search(definitions[0]).findAll().size)
+        assertEquals(1, ReferencesSearch.search(definitions[1]).findAll().size)
+    }
+
+    fun testIncludeFilenameRenamePreservesDirectoryAndUpdatesEveryUse() {
+        val included = myFixture.addFileToProject("dir/shared.inc", "# fixture\n")
+        val root = myFixture.addFileToProject("root.asm", ".include \"dir/shared.inc\"\n.include \"dir/shared.inc\"\n")
+        myFixture.configureFromExistingVirtualFile(root.virtualFile)
+        com.intellij.refactoring.rename.RenameProcessor(project, included, "renamed long file.inc", false, false).run()
+        assertFalse(root.text.contains("shared.inc"))
+        assertEquals(2, Regex("dir/renamed long file.inc").findAll(root.text).count())
+    }
+
+}

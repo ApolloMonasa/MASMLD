@@ -17,7 +17,10 @@ import dev.masmld.core.language.AssemblyLanguage
 
 /** Uses the host's public symbol APIs; no Rust, C/C++ or Java plugin classes are referenced. */
 object SourceSymbolBridge {
-    fun find(origin: PsiElement, name: String): List<PsiElement> {
+    fun find(origin: PsiElement, name: String): List<PsiElement> = find(origin, name, emptySet())
+    private fun find(origin: PsiElement, name: String, visited: Set<String>): List<PsiElement> {
+        if (name in visited || visited.size > 8) return emptyList()
+        dev.masmld.core.binary.BinarySymbols.get(origin.project).target(origin, name)?.let { return listOf(it) }
         val project = origin.project
         if (DumbService.isDumb(project)) return emptyList()
         val scope = GlobalSearchScope.projectScope(project)
@@ -41,6 +44,24 @@ object SourceSymbolBridge {
             } catch (_: IndexNotReadyException) {
                 // Indexing may begin during a query. Existing local assembly targets remain usable.
             }
+        }
+        if (results.isEmpty()) {
+            val word = Regex("[A-Za-z0-9_]+").findAll(name).maxByOrNull { it.value.length }?.value
+            if (word != null) com.intellij.psi.search.PsiSearchHelper.getInstance(project).processCandidateFilesForText(scope, com.intellij.psi.search.UsageSearchContext.ANY, true, word) { vf ->
+                ProgressManager.checkCanceled()
+                if (vf.length <= 1_000_000 && vf.extension?.lowercase() in setOf("rs", "c", "h", "cpp", "cc", "cxx", "hpp", "ld")) {
+                    val file = com.intellij.psi.PsiManager.getInstance(project).findFile(vf)
+                    if (file != null) SourceAliases.analyze(file.text, vf.extension == "rs", vf.extension == "ld").filter { it.external == name }.forEach { alias ->
+                        if (vf.extension == "ld") {
+                            if (dev.masmld.core.source.SourceText.tokens(file.text).none { it.kind == dev.masmld.core.source.SourceToken.Kind.STRING && alias.offset in it.start until it.end }) results += find(origin, alias.source, visited + name)
+                        } else if (file.findElementAt(alias.offset)?.text == alias.source) results += dev.masmld.core.source.IncludeFiles.target(file, alias.offset, alias.source)
+                    }
+                }
+                true
+            }
+        }
+        if (results.isEmpty()) SymbolNames.sourceName(name)?.substringAfterLast("::")?.let { decoded ->
+            if (decoded != name) results += find(origin, decoded, visited + name)
         }
         return results.distinct()
     }

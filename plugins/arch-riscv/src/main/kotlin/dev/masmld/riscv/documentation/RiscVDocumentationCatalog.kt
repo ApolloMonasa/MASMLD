@@ -31,7 +31,9 @@ object RiscVDocumentationCatalog {
                     "RV32I / RV64I；标准整数调用约定", listOf(sources.getValue("abi")))
             }
         }
-        (instructions + registers).also { all ->
+        (instructions + registers + dev.masmld.riscv.editing.RiscVIsa.documents() + dev.masmld.riscv.editing.RiscVIsa.floatingRegisters.map { name ->
+            DocumentationEntry(name, DocumentationKind.REGISTER, name, "浮点寄存器（数字名称或标准 ABI 别名）。", "需要 F 或 D 扩展；调用约定依所选 ABI。", "fadd.s $name, fa0, fa1", "F / D", listOf(sources.getValue("abi")))
+        }).also { all ->
             require(all.map { it.kind to it.name }.distinct().size == all.size) { "Duplicate catalog entry" }
         }
     }
