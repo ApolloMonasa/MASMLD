@@ -1,6 +1,8 @@
 # 发布资料
 
-发布主体：ApolloMonasa — https://github.com/ApolloMonasa
+GitHub 发布账户：ApolloMonasa — https://github.com/ApolloMonasa
+
+Marketplace vendor：MASMLD — https://plugins.jetbrains.com/vendor/masmld（由发布者自行建档，Non-trader）
 
 源代码：https://github.com/ApolloMonasa/MASMLD
 
@@ -10,11 +12,11 @@
 
 ## 三个独立条目
 
-| 名称 | Plugin ID | 依赖 | 建议标签 |
+| 名称 | Plugin ID | 依赖 | 已选标签 |
 | --- | --- | --- | --- |
-| MASMLD Core | dev.masmld.core | IntelliJ Platform | Languages, Code tools |
-| MASMLD RISC-V | dev.masmld.riscv | MASMLD Core | Languages, Code tools |
-| MASMLD GNU Linker Script | dev.masmld.linker | MASMLD Core | Languages, Code tools |
+| MASMLD Core | dev.masmld.core | IntelliJ Platform | Programming Language |
+| MASMLD RISC-V | dev.masmld.riscv | MASMLD Core | Programming Language |
+| MASMLD GNU Linker Script | dev.masmld.linker | MASMLD Core | Programming Language |
 
 英文介绍及版本说明随各模块 META-INF/plugin.xml 打包。插件标志为各模块的 META-INF/pluginIcon.svg 和深色版本；原画见 branding/。不使用生成图片伪装 IDE 实际截图。
 
@@ -33,3 +35,15 @@ Marketplace 是独立服务，首次上传需登录、创建 vendor 并接受开
 官方说明：https://plugins.jetbrains.com/docs/marketplace/uploading-a-new-plugin.html
 
 发布实际结果以 GitHub Release 和 Marketplace 条目状态为准；本文件本身不宣称已完成商店审核。
+
+## 0.7.0 实际发布记录
+
+2026-11-03，三个插件均已成功上传，管理页面显示 “Your plugin was sent for moderation today”。当前状态为**已送审，尚未公开**。上传成功回执提示审核可能需要最多 2 个工作日；这不是保证完成时间。
+
+- Core：https://plugins.jetbrains.com/plugin/35737-masmld-core
+- RISC-V：https://plugins.jetbrains.com/plugin/35738-masmld-risc-v
+- GNU ld：https://plugins.jetbrains.com/plugin/35739-masmld-gnu-linker-script
+
+三者均选择 MIT、源码地址 https://github.com/ApolloMonasa/MASMLD、Programming Language 标签与默认稳定渠道；没有启用广告或 Hidden。发布者已自行完成协议确认与 vendor 建档，本次未修改其身份或联系信息。商店编辑页在审核期间显示相关资料编辑按钮禁用。
+
+GitHub 安装包已公开：https://github.com/ApolloMonasa/MASMLD/releases/tag/v0.7.0 。审核期间可先从该处下载安装。商店条目在审核通过前可能仅发布者可访问；不把已取得条目编号表述为公开上架成功。

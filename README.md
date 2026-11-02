@@ -4,6 +4,8 @@
 
 [下载发布包](https://github.com/ApolloMonasa/MASMLD/releases/latest) · [问题反馈](https://github.com/ApolloMonasa/MASMLD/issues) · [MIT 许可证](LICENSE)
 
+Marketplace 0.7.0 已于 2026-11-03 提交审核，尚未公开：[Core](https://plugins.jetbrains.com/plugin/35737-masmld-core) · [RISC-V](https://plugins.jetbrains.com/plugin/35738-masmld-risc-v) · [GNU ld](https://plugins.jetbrains.com/plugin/35739-masmld-gnu-linker-script)。审核期间可使用 GitHub Release 安装包。
+
 面向 IntelliJ Platform 的模块化汇编语言插件，首批优先验证 RustRover。
 
 当前公开版本为 0.7.0：Core、RISC-V 和 GNU ld 是三个独立插件。汇编与链接脚本均提供基础高亮、容错 PSI 和离线 Hover / Quick Documentation；GNU ld 模块只依赖 Core，不需要安装或选择 RISC-V。
