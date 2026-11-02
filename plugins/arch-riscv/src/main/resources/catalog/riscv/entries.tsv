@@ -1,0 +1,117 @@
+# kind	name	syntax	summary	notes	example	applicability	sources
+INSTRUCTION	add	add rd, rs1, rs2	将两个寄存器相加，结果保留 XLEN 位。	整数溢出不自动触发算术异常。	add a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	sub	sub rd, rs1, rs2	计算 rs1 减 rs2，结果保留 XLEN 位。	整数溢出不自动触发算术异常。	sub a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	sll	sll rd, rs1, rs2	逻辑左移 rs1，移位量来自 rs2 的低位。	移位量在 RV32 中取低 5 位，在 RV64 中取低 6 位。	sll a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	slt	slt rd, rs1, rs2	按有符号数比较 rs1 < rs2，成立则 rd 为 1，否则为 0。	-	slt a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	sltu	sltu rd, rs1, rs2	按无符号数比较 rs1 < rs2，成立则 rd 为 1，否则为 0。	-	sltu a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	xor	xor rd, rs1, rs2	将两个寄存器逐位异或。	-	xor a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	srl	srl rd, rs1, rs2	逻辑右移 rs1，高位补零。	移位量在 RV32 中取低 5 位，在 RV64 中取低 6 位。	srl a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	sra	sra rd, rs1, rs2	算术右移 rs1，高位复制符号位。	移位量在 RV32 中取低 5 位，在 RV64 中取低 6 位。	sra a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	or	or rd, rs1, rs2	将两个寄存器逐位或。	-	or a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	and	and rd, rs1, rs2	将两个寄存器逐位与。	-	and a0, a1, a2	RV32I / RV64I	isa32
+INSTRUCTION	addi	addi rd, rs1, imm12	将 rs1 与符号扩展的 12 位立即数相加。	立即数范围为 -2048 到 2047。	addi a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	slti	slti rd, rs1, imm12	将 rs1 与符号扩展立即数作有符号比较，结果为 0 或 1。	立即数范围为 -2048 到 2047。	slti a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	sltiu	sltiu rd, rs1, imm12	先符号扩展立即数，再作无符号比较，结果为 0 或 1。	立即数范围为 -2048 到 2047。	sltiu a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	xori	xori rd, rs1, imm12	将 rs1 与符号扩展立即数逐位异或。	立即数范围为 -2048 到 2047。	xori a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	ori	ori rd, rs1, imm12	将 rs1 与符号扩展立即数逐位或。	立即数范围为 -2048 到 2047。	ori a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	andi	andi rd, rs1, imm12	将 rs1 与符号扩展立即数逐位与。	立即数范围为 -2048 到 2047。	andi a0, a1, 1	RV32I / RV64I	isa32
+INSTRUCTION	slli	slli rd, rs1, shamt	逻辑左移，溢出的高位丢弃。	移位量在 RV32 为 0..31，在 RV64 为 0..63。	slli a0, a1, 3	RV32I / RV64I	isa32
+INSTRUCTION	srli	srli rd, rs1, shamt	逻辑右移，高位补零。	移位量在 RV32 为 0..31，在 RV64 为 0..63。	srli a0, a1, 3	RV32I / RV64I	isa32
+INSTRUCTION	srai	srai rd, rs1, shamt	算术右移，高位复制符号位。	移位量在 RV32 为 0..31，在 RV64 为 0..63。	srai a0, a1, 3	RV32I / RV64I	isa32
+INSTRUCTION	addw	addw rd, rs1, rs2	相加后取低 32 位。结果从 32 位符号扩展到 64 位。	-	addw a0, a1, a2	RV64I	isa64
+INSTRUCTION	subw	subw rd, rs1, rs2	相减后取低 32 位。结果从 32 位符号扩展到 64 位。	-	subw a0, a1, a2	RV64I	isa64
+INSTRUCTION	sllw	sllw rd, rs1, rs2	对低 32 位逻辑左移，移位量取 rs2 的低 5 位。结果从 32 位符号扩展到 64 位。	-	sllw a0, a1, a2	RV64I	isa64
+INSTRUCTION	srlw	srlw rd, rs1, rs2	对低 32 位逻辑右移，移位量取 rs2 的低 5 位。结果从 32 位符号扩展到 64 位。	-	srlw a0, a1, a2	RV64I	isa64
+INSTRUCTION	sraw	sraw rd, rs1, rs2	对低 32 位算术右移，移位量取 rs2 的低 5 位。结果从 32 位符号扩展到 64 位。	-	sraw a0, a1, a2	RV64I	isa64
+INSTRUCTION	addiw	addiw rd, rs1, imm12	相加后取低 32 位，再符号扩展到 64 位。	立即数为符号扩展的 12 位数。	addiw a0, a1, 1	RV64I	isa64
+INSTRUCTION	slliw	slliw rd, rs1, shamt	对 rs1 的低 32 位逻辑左移，结果从 32 位符号扩展到 64 位。	移位量为 0..31。	slliw a0, a1, 3	RV64I	isa64
+INSTRUCTION	srliw	srliw rd, rs1, shamt	对 rs1 的低 32 位逻辑右移，结果从 32 位符号扩展到 64 位。	移位量为 0..31。	srliw a0, a1, 3	RV64I	isa64
+INSTRUCTION	sraiw	sraiw rd, rs1, shamt	对 rs1 的低 32 位算术右移，结果从 32 位符号扩展到 64 位。	移位量为 0..31。	sraiw a0, a1, 3	RV64I	isa64
+INSTRUCTION	beq	beq rs1, rs2, target	当rs1 等于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	beq a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	bne	bne rs1, rs2, target	当rs1 不等于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	bne a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	blt	blt rs1, rs2, target	当rs1 有符号小于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	blt a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	bge	bge rs1, rs2, target	当rs1 有符号大于或等于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	bge a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	bltu	bltu rs1, rs2, target	当rs1 无符号小于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	bltu a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	bgeu	bgeu rs1, rs2, target	当rs1 无符号大于或等于 rs2时跳转到目标，否则继续执行下一条指令。	基础 B 型偏移相对于当前指令，范围 -4096..4094 字节，步长 2 字节。	bgeu a0, a1, loop	RV32I / RV64I	isa32
+INSTRUCTION	lb	lb rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 8 位数据到 rd。读取结果符号扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lb a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	lh	lh rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 16 位数据到 rd。读取结果符号扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lh a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	lw	lw rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 32 位数据到 rd。读取结果符号扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lw a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	lbu	lbu rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 8 位数据到 rd。读取结果零扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lbu a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	lhu	lhu rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 16 位数据到 rd。读取结果零扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lhu a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	lwu	lwu rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 32 位数据到 rd。读取结果零扩展到 XLEN 位。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	lwu a0, 0(sp)	RV64I	isa64
+INSTRUCTION	ld	ld rd, offset(rs1)	从 rs1 + 符号扩展偏移处读取 64 位数据到 rd。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	ld a0, 0(sp)	RV64I	isa64
+INSTRUCTION	sb	sb rs2, offset(rs1)	将 rs2 的低 8 位写入 rs1 + 符号扩展偏移处。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	sb a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	sh	sh rs2, offset(rs1)	将 rs2 的低 16 位写入 rs1 + 符号扩展偏移处。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	sh a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	sw	sw rs2, offset(rs1)	将 rs2 的低 32 位写入 rs1 + 符号扩展偏移处。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	sw a0, 0(sp)	RV32I / RV64I	isa32
+INSTRUCTION	sd	sd rs2, offset(rs1)	将 rs2 的低 64 位写入 rs1 + 符号扩展偏移处。	偏移为 12 位有符号数；地址异常与未对齐访问行为由执行环境决定。	sd a0, 0(sp)	RV64I	isa64
+INSTRUCTION	lui	lui rd, imm20	将 20 位立即数放到位 31..12，低 12 位清零。	RV64 将所得 32 位结果符号扩展到 64 位。	lui a0, 0x12345	RV32I / RV64I	isa32
+INSTRUCTION	auipc	auipc rd, imm20	将左移 12 位后的立即数偏移加到当前指令地址，写入 rd。	用于 PC 相对寻址；RV64 中该 32 位偏移先符号扩展。	auipc a0, 0	RV32I / RV64I	isa32
+INSTRUCTION	jal	jal [rd,] target	跳转到 PC 相对目标，并将下一条指令地址写入 rd。	GNU 省略 rd 时默认 ra；基础编码偏移范围 -1048576..1048574 字节。	jal ra, function	RV32I / RV64I	isa32
+INSTRUCTION	jalr	jalr [rd,] offset(rs1) / rd, rs1, imm12	跳转到 rs1 加符号扩展偏移形成的地址，并将目标最低位清零；下一条指令地址写入 rd。	实际编码为 I 型；GNU 支持若干寄存器/偏移省略写法。	jalr ra, 0(t0)	RV32I / RV64I	isa32
+INSTRUCTION	fence	fence [pred, succ]	约束前驱与后继集合中的内存或设备访问顺序。	集合 i/o/r/w 分别表示设备输入、设备输出、内存读、内存写；它不是指令缓存同步指令。	fence rw, rw	RV32I / RV64I	isa32
+INSTRUCTION	ecall	ecall	向执行环境请求服务，触发相应环境调用异常。	服务编号、参数与返回约定由操作系统或执行环境定义，指令本身不规定 Linux 系统调用号。	ecall	RV32I / RV64I	isa32
+INSTRUCTION	ebreak	ebreak	触发断点异常，供调试或执行环境处理。	具体异常处理与是否进入调试模式取决于实现和环境。	ebreak	RV32I / RV64I	isa32
+PSEUDO_INSTRUCTION	mv	mv rd, rs	复制寄存器值。	典型基础展开：addi rd, rs, 0；实际编码可能因压缩或松弛而变化。	mv a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	not	not rd, rs	对源寄存器逐位取反。	典型基础展开：xori rd, rs, -1；实际编码可能因压缩或松弛而变化。	not a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	neg	neg rd, rs	取源寄存器的算术负值。	典型基础展开：sub rd, zero, rs；实际编码可能因压缩或松弛而变化。	neg a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	negw	negw rd, rs	取低 32 位的算术负值，再符号扩展到 64 位。	典型基础展开：subw rd, zero, rs；实际编码可能因压缩或松弛而变化。	negw a0, a1	GNU RISC-V；RV64	asm
+PSEUDO_INSTRUCTION	sext.w	sext.w rd, rs	将低 32 位符号扩展到 64 位。	典型基础展开：addiw rd, rs, 0；实际编码可能因压缩或松弛而变化。	sext.w a0, a1	GNU RISC-V；RV64	asm
+PSEUDO_INSTRUCTION	seqz	seqz rd, rs	源值为零时置 1，否则置 0。	典型基础展开：sltiu rd, rs, 1；实际编码可能因压缩或松弛而变化。	seqz a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	snez	snez rd, rs	源值非零时置 1，否则置 0。	典型基础展开：sltu rd, zero, rs；实际编码可能因压缩或松弛而变化。	snez a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	sltz	sltz rd, rs	源值按有符号解释小于零时置 1，否则置 0。	典型基础展开：slt rd, rs, zero；实际编码可能因压缩或松弛而变化。	sltz a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	sgtz	sgtz rd, rs	源值按有符号解释大于零时置 1，否则置 0。	典型基础展开：slt rd, zero, rs；实际编码可能因压缩或松弛而变化。	sgtz a0, a1	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	nop	nop	不改变普通架构状态的空操作。	典型基础展开：addi zero, zero, 0；实际编码可能因压缩或松弛而变化。	nop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	ret	ret	按约定通过 ra 返回调用者。	典型基础展开：jalr zero, 0(ra)；实际编码可能因压缩或松弛而变化。	ret	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	j	j target	无条件跳转，不保存返回地址。	典型基础展开：jal zero, target；实际编码可能因压缩或松弛而变化。	j loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	jr	jr rs	无条件跳转到寄存器给出的地址，不保存返回地址。	典型基础展开：jalr zero, 0(rs)；实际编码可能因压缩或松弛而变化。	jr t0	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	beqz	beqz rs, target	当源寄存器等于零时跳转。	典型基础展开：beq rs, zero, target。	beqz a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bnez	bnez rs, target	当源寄存器不等于零时跳转。	典型基础展开：bne rs, zero, target。	bnez a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	blez	blez rs, target	当源寄存器有符号小于或等于零时跳转。	典型基础展开：bge zero, rs, target。	blez a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bgez	bgez rs, target	当源寄存器有符号大于或等于零时跳转。	典型基础展开：bge rs, zero, target。	bgez a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bltz	bltz rs, target	当源寄存器有符号小于零时跳转。	典型基础展开：blt rs, zero, target。	bltz a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bgtz	bgtz rs, target	当源寄存器有符号大于零时跳转。	典型基础展开：blt zero, rs, target。	bgtz a0, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bgt	bgt rs1, rs2, target	当 rs1 有符号大于 rs2 时跳转。	典型基础展开：blt rs2, rs1, target，交换两个比较源。	bgt a0, a1, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	ble	ble rs1, rs2, target	当 rs1 有符号小于或等于 rs2 时跳转。	典型基础展开：bge rs2, rs1, target，交换两个比较源。	ble a0, a1, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bgtu	bgtu rs1, rs2, target	当 rs1 无符号大于 rs2 时跳转。	典型基础展开：bltu rs2, rs1, target，交换两个比较源。	bgtu a0, a1, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	bleu	bleu rs1, rs2, target	当 rs1 无符号小于或等于 rs2 时跳转。	典型基础展开：bgeu rs2, rs1, target，交换两个比较源。	bleu a0, a1, loop	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	li	li rd, immediate	将整数常量装入寄存器。	不是固定的一条机器指令；展开取决于常量、XLEN 和启用的扩展。	li a0, 42	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	la	la rd, symbol	将符号地址装入寄存器，不读取该地址处的数据。	PIC 配置下通常采用 GOT 寻址；非 PIC 通常采用 PC 相对寻址。展开还受重定位和链接松弛影响，不能固定等同于两条指令。	la sp, boot_stack_top	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	lla	lla rd, symbol	使用 PC 相对序列取得本地符号地址。	典型序列为 AUIPC 与 ADDI，配合 PC 相对重定位；实际链接结果可能被松弛。	lla a0, message	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	lga	lga rd, symbol	通过 GOT 取得全局符号地址。	通过 PC 相对定位的 GOT 表项，按地址宽度加载；具体序列受重定位和链接配置影响。	lga a0, global_data	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	call	call [rd,] symbol	调用目标过程并保存返回地址；省略 rd 时使用 ra。	常见基础序列为 AUIPC 与 JALR，实际序列受重定位、PLT 和链接松弛影响；它不是固定编码的机器指令。	call rust_main	GNU RISC-V；RV32 / RV64	asm
+PSEUDO_INSTRUCTION	tail	tail symbol	尾调用目标过程，不建立新的返回地址。	实现通常使用临时寄存器构造跳转地址，并受启用扩展与链接松弛影响；不应假设保留所有临时寄存器。	tail next_function	GNU RISC-V；RV32 / RV64	asm
+DIRECTIVE	.section	.section name [, "flags" [, @type]]	将后续内容切换到指定节。	例如 .text.entry 与 .bss.stack 是不同的自定义节；最终地址和布局由链接器脚本等决定。	.section .text.entry	GNU as / RISC-V	section
+DIRECTIVE	.globl	.globl symbol	将符号声明为可供其他目标文件链接引用的全局符号。	不会自行定义符号地址，也不会自动生成程序入口或函数体。	.globl _start	GNU as / RISC-V	global
+DIRECTIVE	.global	.global symbol	将符号声明为可供其他目标文件链接引用的全局符号。	不会自行定义符号地址，也不会自动生成程序入口或函数体。	.global _start	GNU as / RISC-V	global
+DIRECTIVE	.text	.text [subsection]	切换到代码节。	节的最终放置由链接过程决定。	.text	GNU as / RISC-V	gas
+DIRECTIVE	.data	.data [subsection]	切换到已初始化数据节。	节的最终放置由链接过程决定。	.data	GNU as / RISC-V	gas
+DIRECTIVE	.bss	.bss [subsection]	切换到未初始化数据节。	节的最终放置由链接过程决定。	.bss	GNU as / RISC-V	gas
+DIRECTIVE	.space	.space size [, fill]	为当前节保留指定字节数的空间，默认填充值为零。	size 可以是可求值表达式；在 NOBITS/BSS 节中主要增加节大小，不表示目标文件中存有这些字节。	.space 4096 * 16	GNU as / RISC-V	gas
+DIRECTIVE	.skip	.skip size [, fill]	为当前节保留指定字节数的空间，默认填充值为零。	size 可以是可求值表达式；在 NOBITS/BSS 节中主要增加节大小，不表示目标文件中存有这些字节。	.skip 4096 * 16	GNU as / RISC-V	gas
+DIRECTIVE	.zero	.zero size [, fill]	为当前节保留指定字节数的空间，默认填充值为零。	size 可以是可求值表达式；在 NOBITS/BSS 节中主要增加节大小，不表示目标文件中存有这些字节。	.zero 4096 * 16	GNU as / RISC-V	gas
+DIRECTIVE	.byte	.byte expression [, expression ...]	在当前节输出 8 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.byte 42	GNU as / RISC-V	gas
+DIRECTIVE	.half	.half expression [, expression ...]	在当前节输出 16 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.half 42	GNU as / RISC-V	gasrv
+DIRECTIVE	.2byte	.2byte expression [, expression ...]	在当前节输出 16 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.2byte 42	GNU as / RISC-V	gas
+DIRECTIVE	.short	.short expression [, expression ...]	在当前节输出 16 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.short 42	GNU as / RISC-V	gas
+DIRECTIVE	.word	.word expression [, expression ...]	在当前节输出 32 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.word 42	GNU as / RISC-V	gasrv
+DIRECTIVE	.4byte	.4byte expression [, expression ...]	在当前节输出 32 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.4byte 42	GNU as / RISC-V	gas
+DIRECTIVE	.long	.long expression [, expression ...]	在当前节输出 32 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.long 42	GNU as / RISC-V	gas
+DIRECTIVE	.dword	.dword expression [, expression ...]	在当前节输出 64 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.dword 42	GNU as / RISC-V	gasrv
+DIRECTIVE	.8byte	.8byte expression [, expression ...]	在当前节输出 64 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.8byte 42	GNU as / RISC-V	gas
+DIRECTIVE	.quad	.quad expression [, expression ...]	在当前节输出 64 位整数数据项。	这里描述 RISC-V GNU 汇编器的宽度，不以 XLEN 代替数据项宽度。	.quad 42	GNU as / RISC-V	gas
+DIRECTIVE	.ascii	.ascii "text" [, "text" ...]	输出字符串字节，不自动附加零终止符。	字符串中的 # 和分号不是注释或语句分隔符。	.ascii "hello"	GNU as / RISC-V	gas
+DIRECTIVE	.asciz	.asciz "text" [, "text" ...]	输出字符串字节，并为每个字符串追加零终止符。	字符串中的 # 和分号不是注释或语句分隔符。	.asciz "hello"	GNU as / RISC-V	gas
+DIRECTIVE	.string	.string "text" [, "text" ...]	输出字符串字节，并为每个字符串追加零终止符。	字符串中的 # 和分号不是注释或语句分隔符。	.string "hello"	GNU as / RISC-V	gas
+DIRECTIVE	.align	.align power [, fill [, max-skip]]	按 2 的 power 次方字节对齐当前位置。	示例对齐到 16 字节；.align 的参数解释是目标相关的，此处特指 RISC-V。	.align 4	GNU as / RISC-V	gasrv
+DIRECTIVE	.p2align	.p2align power [, fill [, max-skip]]	按 2 的 power 次方字节对齐当前位置。	示例对齐到 16 字节；.align 的参数解释是目标相关的，此处特指 RISC-V。	.p2align 4	GNU as / RISC-V	gas
+DIRECTIVE	.balign	.balign bytes [, fill [, max-skip]]	按指定字节边界对齐当前位置。	示例对齐到 16 字节；.align 的参数解释是目标相关的，此处特指 RISC-V。	.balign 16	GNU as / RISC-V	gas
+DIRECTIVE	.equ	.equ symbol, expression	给符号赋予表达式的值。	这是汇编期符号定义，不是运行时寄存器赋值。	.equ STACK_SIZE, 4096	GNU as / RISC-V	gas
+DIRECTIVE	.set	.set symbol, expression	给符号赋予表达式的值。	这是汇编期符号定义，不是运行时寄存器赋值。	.set STACK_SIZE, 4096	GNU as / RISC-V	gas
+DIRECTIVE	.type	.type symbol, @type	标注 ELF 符号类型，例如函数或对象。	符号类型元数据不会生成函数体。	.type _start, @function	GNU as / RISC-V	gas
+DIRECTIVE	.size	.size symbol, expression	设置 ELF 符号大小元数据。	常用当前位置减去起始标签计算函数长度。	.size _start, . - _start	GNU as / RISC-V	gas
+DIRECTIVE	.option	.option argument	调整 RISC-V 汇编选项，例如 push/pop、pic/nopic 或 relax/norelax。	建议用 push/pop 限定选项变更范围；它不直接执行 CPU 配置指令。	.option norelax	GNU as / RISC-V	gasrv
+DIRECTIVE	.attribute	.attribute tag, value	设置目标文件的 RISC-V 属性元数据。	属性可描述指令集；插件当前不会据此切换架构或验证指令。	.attribute arch, "rv64i"	GNU as / RISC-V	gasrv
+DIRECTIVE	.macro	.macro name [arguments]	开始定义汇编宏。	以 .endm 结束；插件不执行宏展开。	.macro save reg	GNU as / RISC-V	gas
+DIRECTIVE	.endm	.endm	结束当前宏定义。	与 .macro 配对。	.endm	GNU as / RISC-V	gas
+DIRECTIVE	.include	.include "filename"	在汇编时包含另一个源文件。	插件当前不读取或展开包含文件。	.include "constants.inc"	GNU as / RISC-V	gas
+DIRECTIVE	.insn	.insn type, operands / [length,] value	按指令格式或编码值输出一条指令。	格式依赖 GNU as 版本；插件当前不校验自定义格式的操作数。	.insn 4, 0x00000013	GNU as / RISC-V	gasrv

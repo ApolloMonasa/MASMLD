@@ -1,0 +1,49 @@
+# kind	name	syntax	summary	notes	example	source
+LINKER_COMMAND	MEMORY	MEMORY { name [(attr)] : ORIGIN = address, LENGTH = size ... }	定义可用于放置输出节的内存区域及其起始地址和长度。	区域名有独立命名空间；声明不会分配物理内存，也不配置 CPU 内存权限。	MEMORY { RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 128M }	https://sourceware.org/binutils/docs/ld/MEMORY.html
+LINKER_COMMAND	SECTIONS	SECTIONS { ... }	描述输入节到输出节的映射，并控制输出布局。	脚本中的符号赋值、节描述和位置计数器共同影响布局；插件不执行布局计算。	SECTIONS { .text : { *(.text .text.*) } }	https://sourceware.org/binutils/docs/ld/SECTIONS.html
+LINKER_COMMAND	ENTRY	ENTRY (symbol)	设置输出文件的入口地址所对应的符号。	最终入口选择还可能受链接器命令行等因素影响；该命令不生成启动代码。	ENTRY(_start)	https://sourceware.org/binutils/docs/ld/Entry-Point.html
+LINKER_COMMAND	OUTPUT_ARCH	OUTPUT_ARCH (architecture)	设置输出文件的目标机器架构。	这是链接器的目标选择；插件不会根据它启用汇编架构模块。	OUTPUT_ARCH(riscv)	https://sourceware.org/binutils/docs/ld/Format-Commands.html
+LINKER_COMMAND	OUTPUT_FORMAT	OUTPUT_FORMAT (format / default, big, little)	选择输出文件的 BFD 格式。	三个参数的形式允许按端序选项选择格式。	OUTPUT_FORMAT("elf64-littleriscv")	https://sourceware.org/binutils/docs/ld/Format-Commands.html
+LINKER_COMMAND	INCLUDE	INCLUDE filename	在当前位置读取另一份链接脚本。	插件不读取被包含文件，也不展开其中定义。	INCLUDE memory.ld	https://sourceware.org/binutils/docs/ld/File-Commands.html
+LINKER_COMMAND	INPUT	INPUT (files)	将列出的文件作为链接输入。	输入可以包含目标文件或库；文件解析仍由实际链接器完成。	INPUT(start.o)	https://sourceware.org/binutils/docs/ld/File-Commands.html
+LINKER_COMMAND	GROUP	GROUP (files)	将输入归为需要反复搜索的组，直到不能再解析新的未定义引用。	主要用于处理归档之间的循环引用。	GROUP(libfirst.a libsecond.a)	https://sourceware.org/binutils/docs/ld/File-Commands.html
+LINKER_COMMAND	SEARCH_DIR	SEARCH_DIR (path)	向链接器的库搜索目录列表添加路径。	效果类似命令行的 -L；插件不会修改 IDE 工具链搜索路径。	SEARCH_DIR("lib")	https://sourceware.org/binutils/docs/ld/File-Commands.html
+LINKER_COMMAND	STARTUP	STARTUP (file)	将文件作为最先处理的输入文件。	它影响输入顺序，不等同于指定入口符号。	STARTUP(start.o)	https://sourceware.org/binutils/docs/ld/File-Commands.html
+LINKER_COMMAND	EXTERN	EXTERN (symbols)	将符号作为未定义引用引入，促使链接器解析它们。	用途类似命令行 -u，可用于从归档提取相关成员。	EXTERN(interrupt_vector)	https://sourceware.org/binutils/docs/ld/Miscellaneous-Commands.html
+LINKER_COMMAND	PROVIDE	PROVIDE (symbol = expression)	仅在符号被引用且未由其他目标文件定义时提供该定义。	并非总会在输出符号表中创建该符号。	PROVIDE(__stack_top = ORIGIN(RAM) + LENGTH(RAM));	https://sourceware.org/binutils/docs/ld/PROVIDE.html
+LINKER_COMMAND	PROVIDE_HIDDEN	PROVIDE_HIDDEN (symbol = expression)	按 PROVIDE 的条件提供符号，同时将其设为隐藏。	隐藏符号不会作为普通动态导出符号提供给其他模块。	PROVIDE_HIDDEN(__data_start = .);	https://sourceware.org/binutils/docs/ld/PROVIDE_005fHIDDEN.html
+LINKER_COMMAND	ASSERT	ASSERT (expression, message)	表达式结果为零时报告带消息的链接错误。	表达式求值阶段会影响可引用的符号；插件不会执行断言。	ASSERT(SIZEOF(.text) < 0x10000, "text too large");	https://sourceware.org/binutils/docs/ld/Miscellaneous-Commands.html
+LINKER_COMMAND	KEEP	KEEP (input-section-pattern)	在节垃圾回收时保留匹配的输入节。	通常用于入口代码、中断向量和初始化表；作用于匹配项，不是所有输入节。	KEEP(*(.text.entry))	https://sourceware.org/binutils/docs/ld/Input-Section-Keep.html
+LINKER_COMMAND	SORT_BY_NAME	SORT_BY_NAME (pattern)	按名称排序匹配的输入节。	排序与通配符匹配的嵌套方式会影响最终顺序。	*(SORT_BY_NAME(.init_array.*))	https://sourceware.org/binutils/docs/ld/Input-Section-Wildcards.html
+LINKER_COMMAND	SORT_BY_ALIGNMENT	SORT_BY_ALIGNMENT (pattern)	按对齐要求排序匹配的输入节，较大对齐在前。	可减少对齐填充；插件不预测最终节地址。	*(SORT_BY_ALIGNMENT(.text.*))	https://sourceware.org/binutils/docs/ld/Input-Section-Wildcards.html
+LINKER_COMMAND	PHDRS	PHDRS { name type [attributes] ; ... }	显式描述输出文件的程序头。	为 ELF 输出提供精细的段控制；它与输出节不是同一概念。	PHDRS { text PT_LOAD FLAGS(5); }	https://sourceware.org/binutils/docs/ld/PHDRS.html
+LINKER_COMMAND	NOLOAD	NOLOAD	将输出节标记为不加载类型。	ELF 中仍可能分配运行时内存；具体行为受输出格式和链接器版本影响。	.bss (NOLOAD) : { *(.bss) }	https://sourceware.org/binutils/docs/ld/Output-Section-Type.html
+LINKER_COMMAND	READONLY	READONLY	将输出节标记为只读。	这是输出节类型/属性，不代替运行时页表设置。	.rodata (READONLY) : { *(.rodata) }	https://sourceware.org/binutils/docs/ld/Output-Section-Type.html
+LINKER_COMMAND	AT	AT (load-address) / > region	指定输出节的加载地址或加载区域。	需区分运行地址 VMA 和加载地址 LMA；例如 ROM 加载、RAM 运行。	.data : AT(0x10000) { *(.data) }	https://sourceware.org/binutils/docs/ld/Output-Section-LMA.html
+LINKER_COMMAND	/DISCARD/	/DISCARD/  : { input-section-patterns }	丢弃匹配的输入节。	这些输入节不会进入普通输出节；请谨慎处理所需元数据。	/DISCARD/ : { *(.eh_frame) }	https://sourceware.org/binutils/docs/ld/Output-Section-Discarding.html
+LINKER_COMMAND	.	.  = expression	当前位置计数器，参与输出节布局。	赋值会移动当前位置；它不是 CPU 寄存器。在输出节内部，表达式可能具有节相对语义。	. = ALIGN(4K);	https://sourceware.org/binutils/docs/ld/Location-Counter.html
+LINKER_COMMAND	ORIGIN	ORIGIN = address	在 MEMORY 区域声明中指定起始地址。	用在 ORIGIN(region) 时是查询函数；这里的地址表达式必须符合链接器的常量要求。	RAM : ORIGIN = 0x80000000, LENGTH = 128M	https://sourceware.org/binutils/docs/ld/MEMORY.html
+LINKER_COMMAND	LENGTH	LENGTH = size	在 MEMORY 区域声明中指定长度，单位为字节。	K/M 后缀分别按 1024 和 1024*1024 缩放。	RAM : ORIGIN = 0x80000000, LENGTH = 128M	https://sourceware.org/binutils/docs/ld/MEMORY.html
+LINKER_COMMAND	BYTE	BYTE (expression)	在当前输出节当前位置写入 8 位数据。	该命令直接增加输出节内容和大小。	BYTE(0)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+LINKER_COMMAND	SHORT	SHORT (expression)	在当前输出节当前位置写入 16 位数据。	该命令直接增加输出节内容和大小。	SHORT(0)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+LINKER_COMMAND	LONG	LONG (expression)	在当前输出节当前位置写入 32 位数据。	该命令直接增加输出节内容和大小。	LONG(0)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+LINKER_COMMAND	QUAD	QUAD (expression)	在当前输出节当前位置写入 64 位数据。	QUAD 与 SQUAD 在需要扩展到 64 位时的符号扩展规则有区别；不把这些名称解释为汇编指令。	QUAD(0)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+LINKER_COMMAND	SQUAD	SQUAD (expression)	在当前输出节当前位置写入 64 位数据。	QUAD 与 SQUAD 在需要扩展到 64 位时的符号扩展规则有区别；不把这些名称解释为汇编指令。	SQUAD(0)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+LINKER_COMMAND	FILL	FILL (expression)	设置输出节中后续未指定区域的填充值模式。	模式长度与表达式写法有关；它作用于当前位置之后的填充区域。	FILL(0xFF)	https://sourceware.org/binutils/docs/ld/Output-Section-Data.html
+BUILTIN_FUNCTION	ALIGN	ALIGN (alignment / expression, alignment)	返回向上对齐后的地址或表达式值。	单参数形式只计算，不自行修改位置计数器；写成 . = ALIGN(...) 才会通过赋值移动位置。	. = ALIGN(4K);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	ABSOLUTE	ABSOLUTE (expression)	将表达式转换为绝对值类型，避免按输出节相对值解释。	这里的 absolute 指非重定位类型，不是数学上的取非负绝对值。	absolute_start = ABSOLUTE(.);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	ADDR	ADDR (section)	返回指定输出节的运行地址 VMA。	该输出节的位置需要已被定义；不是输入节模式查询。	text_start = ADDR(.text);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	LOADADDR	LOADADDR (section)	返回指定输出节的加载地址 LMA。	它可能与运行地址 ADDR(section) 不同。	data_load = LOADADDR(.data);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	SIZEOF	SIZEOF (section)	返回指定输出节的大小，单位为字节。	参数为输出节名；不等同于文件总长度。	text_size = SIZEOF(.text);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	SIZEOF_HEADERS	SIZEOF_HEADERS	返回输出文件头部大小，单位为字节。	这是不带括号的内建值；结果取决于输出格式和程序头等信息。	. = SIZEOF_HEADERS;	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	ALIGNOF	ALIGNOF (section)	返回指定输出节的对齐要求，单位为字节。	其值取决于输出节是否分配以及链接器版本支持的特殊参数。	text_align = ALIGNOF(.text);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	DEFINED	DEFINED (symbol)	当符号在全局符号表中且已定义时返回 1，否则返回 0。	常与条件表达式配合设置默认值。	start = DEFINED(custom_start) ? custom_start : .;	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	ORIGIN	ORIGIN (region)	返回 MEMORY 中指定区域的起始地址。	区域名不是普通符号；与 MEMORY 内的 ORIGIN = 属性区分。	. = ORIGIN(RAM);	https://sourceware.org/binutils/docs/ld/MEMORY.html
+BUILTIN_FUNCTION	LENGTH	LENGTH (region)	返回 MEMORY 中指定区域的长度，单位为字节。	它不是该区域的已使用空间。	stack_top = ORIGIN(RAM) + LENGTH(RAM);	https://sourceware.org/binutils/docs/ld/MEMORY.html
+BUILTIN_FUNCTION	MAX	MAX (a, b)	返回两个表达式中的较大值。	仅对表达式求值，不自行移动当前位置。	limit = MAX(first, second);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	MIN	MIN (a, b)	返回两个表达式中的较小值。	仅对表达式求值，不自行移动当前位置。	limit = MIN(first, second);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	NEXT	NEXT (alignment)	返回按指定边界对齐的下一个未分配地址。	存在不连续的 MEMORY 区域时，语义可能与单纯 ALIGN 不同。	next_page = NEXT(4096);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	BLOCK	BLOCK (alignment)	ALIGN 的兼容性别名。	主要见于旧脚本的输出节地址表达式。	.text BLOCK(4096) : { *(.text) }	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	CONSTANT	CONSTANT (name)	查询链接器提供的目标相关常量。	可用名称与目标有关，例如 MAXPAGESIZE。	page_size = CONSTANT(MAXPAGESIZE);	https://sourceware.org/binutils/docs/ld/Symbolic-Constants.html
+BUILTIN_FUNCTION	LOG2CEIL	LOG2CEIL (expression)	返回不小于表达式以 2 为底对数的最小整数。	用于布局计算；最终参数有效性由链接器检查。	bits = LOG2CEIL(17);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html
+BUILTIN_FUNCTION	SEGMENT_START	SEGMENT_START (segment, default)	返回指定段的起始值，没有对应覆盖设置时使用默认值。	具体可用段和命令行覆盖与链接器实现相关。	. = SEGMENT_START("text-segment", 0x80000000);	https://sourceware.org/binutils/docs/ld/Builtin-Functions.html

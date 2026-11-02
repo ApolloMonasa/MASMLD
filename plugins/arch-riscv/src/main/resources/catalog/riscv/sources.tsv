@@ -1,0 +1,9 @@
+# id	title	url	revision	notice
+isa32	RISC-V RV32I specification	https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html	ISA v20260120 / RV32I 2.1	事实参考；中文摘要和示例由 MASMLD 原创
+isa64	RISC-V RV64I specification	https://docs.riscv.org/reference/isa/v20260120/unpriv/rv64.html	ISA v20260120 / RV64I 2.1	事实参考；中文摘要和示例由 MASMLD 原创
+asm	RISC-V Assembly Programmer’s Manual	https://github.com/riscv-non-isa/riscv-asm-manual/blob/main/src/asm-manual.adoc	2026-11-02 查阅的在线版本	事实参考；未打包手册正文
+abi	RISC-V ABIs Specification	https://riscv-non-isa.github.io/riscv-elf-psabi-doc/	2.0-rc0 / 2026-10-27；整数寄存器约定	上游 CC BY 4.0；摘要和示例由 MASMLD 原创
+gas	GNU as assembler directives	https://sourceware.org/binutils/docs/as/Pseudo-Ops.html	2026-11-02 查阅的在线版本	事实参考；未打包 GNU 手册正文
+gasrv	GNU as RISC-V directives	https://sourceware.org/binutils/docs/as/RISC_002dV_002dDirectives.html	2026-11-02 查阅的在线版本	事实参考；未打包 GNU 手册正文
+section	GNU as .section	https://sourceware.org/binutils/docs/as/Section.html	2026-11-02 查阅的在线版本	事实参考；未打包 GNU 手册正文
+global	GNU as .global / .globl	https://sourceware.org/binutils/docs/as/Global.html	2026-11-02 查阅的在线版本	事实参考；未打包 GNU 手册正文

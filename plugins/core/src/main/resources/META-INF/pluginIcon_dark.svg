@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="t" x2="1" y2="1"><stop stop-color="#20BCFF"/><stop offset="1" stop-color="#357CFA"/></linearGradient>
+    <linearGradient id="l" x2="1" y2="1"><stop stop-color="#086AFF"/><stop offset="1" stop-color="#3041CF"/></linearGradient>
+    <linearGradient id="r" x2="0" y2="1"><stop stop-color="#9B3BFF"/><stop offset="1" stop-color="#6525DA"/></linearGradient>
+  </defs>
+  <path fill="#293DBC" d="M20 2 35.59 11v18L20 38 4.41 29V11Z"/>
+  <path fill="url(#t)" d="m20 2 9 5.2-9 5.2-9-5.2Z"/>
+  <path fill="url(#l)" d="m11 7.2 9 5.2v7.6l-9-5.2Z"/>
+  <path fill="url(#r)" d="m20 12.4 9-5.2v7.6l-9 5.2Z"/>
+  <path fill="url(#t)" d="m12 16.5 7.59 4.38L12 25.26l-7.59-4.38Z"/>
+  <path fill="url(#l)" d="m4.41 20.88 7.59 4.38v8.12L4.41 29Z"/>
+  <path fill="url(#r)" d="m12 25.26 7.59-4.38V29L12 33.38Z"/>
+  <path fill="url(#t)" d="m28 16.5 7.59 4.38L28 25.26l-7.59-4.38Z"/>
+  <path fill="url(#l)" d="m20.41 20.88 7.59 4.38v8.12L20.41 29Z"/>
+  <path fill="url(#r)" d="m28 25.26 7.59-4.38V29L28 33.38Z"/>
+</svg>

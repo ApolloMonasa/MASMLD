@@ -1,0 +1,20 @@
+<idea-plugin require-restart="true" url="https://github.com/ApolloMonasa/MASMLD">
+    <id>dev.masmld.riscv</id>
+    <name>MASMLD RISC-V</name>
+    <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
+    <description><![CDATA[<p>RISC-V GNU assembly support for MASMLD, with RustRover as the primary tested product.</p><ul><li>Syntax highlighting for instructions, pseudo instructions, registers, directives, labels, comments and strings.</li><li>Offline Chinese quick documentation for 181 instruction, register and directive names.</li><li>Navigate to labels, numeric local labels, constants, exported assembly symbols and same-file .macro definitions.</li><li>External source symbols use the host IDE indexes, including Rust and C/C++ when available.</li></ul><p>Requires MASMLD Core. Select RISC-V under Settings → Languages &amp; Frameworks → MASMLD Assembly. Enable quick documentation on hover in editor settings. No assembler, debugger, C++ demangler, macro expansion or RV32/RV64 legality checking is provided.</p>]]></description>
+    <change-notes><![CDATA[<p>0.7.0: First public release under the MIT license. Adds blue/purple modular cube branding and navigation from same-file macro calls and .purgem to .macro definitions. Includes assembly and linker-script highlighting, offline documentation, file icons and host source-symbol navigation.</p>]]></change-notes>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>dev.masmld.core</depends>
+    <extensions defaultExtensionNs="dev.masmld.core">
+        <architecture implementation="dev.masmld.riscv.RiscVArchitectureProvider"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.parserDefinition language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.parser.RiscVParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.highlighting.RiscVSyntaxHighlighterFactory"/>
+        <annotator language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.highlighting.RiscVAnnotator"/>
+        <platform.backend.documentation.targetProvider implementation="dev.masmld.riscv.documentation.RiscVDocumentationTargetProvider"/>
+        <platform.backend.documentation.psiTargetProvider implementation="dev.masmld.riscv.documentation.RiscVPsiDocumentationTargetProvider"/>
+        <colorSettingsPage implementation="dev.masmld.riscv.highlighting.RiscVColorSettingsPage"/>
+    </extensions>
+</idea-plugin>

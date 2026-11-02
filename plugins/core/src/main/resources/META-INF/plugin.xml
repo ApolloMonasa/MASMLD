@@ -1,0 +1,24 @@
+<idea-plugin require-restart="true" url="https://github.com/ApolloMonasa/MASMLD">
+    <id>dev.masmld.core</id>
+    <name>MASMLD Core</name>
+    <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
+    <description><![CDATA[<p>Modular assembly language infrastructure for IntelliJ Platform IDEs, with RustRover as the primary tested product.</p><ul><li>Shared .asm, .s and .S file types and file icons.</li><li>Per-project architecture selection and an extensible architecture registry.</li><li>Install MASMLD RISC-V for highlighting, offline documentation and navigation, or MASMLD GNU Linker Script for .ld support.</li></ul><p>Core provides generic assembly support on its own. Optional modules are distributed separately. Restart after installing or changing modules; keep all MASMLD modules on the same version.</p>]]></description>
+    <change-notes><![CDATA[<p>0.7.0: First public release under the MIT license. Adds blue/purple modular cube branding and navigation from same-file macro calls and .purgem to .macro definitions. Includes assembly and linker-script highlighting, offline documentation, file icons and host source-symbol navigation.</p>]]></change-notes>
+    <depends>com.intellij.modules.platform</depends>
+    <extensionPoints>
+        <extensionPoint name="architecture" interface="dev.masmld.core.api.ArchitectureProvider" dynamic="true"/>
+    </extensionPoints>
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="MASMLD Assembly" language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblyFileType" fieldName="INSTANCE" extensions="s;S;asm"/>
+        <lang.parserDefinition language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblyParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblySyntaxHighlighterFactory"/>
+        <lang.substitutor language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblyLanguageSubstitutor"/>
+        <projectService serviceImplementation="dev.masmld.core.settings.AssemblySettings"/>
+        <projectConfigurable parentId="language" id="dev.masmld.settings" displayName="MASMLD Assembly" instance="dev.masmld.core.settings.AssemblyConfigurable"/>
+    </extensions>
+    <actions>
+        <action id="dev.masmld.ArchitectureStatus" class="dev.masmld.core.actions.ArchitectureStatusAction" text="MASMLD: Show Architecture Status" description="Show available assembly architectures and the project selection">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
