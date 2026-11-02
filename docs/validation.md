@@ -1,3 +1,39 @@
+# 0.8.0-dev 开发者能力验证
+
+日期：2026-11-03。工作分支：feature/developer-workflows。该开发包未覆盖公开的 0.7.0 安装包。
+
+## 执行范围
+
+- Core 20 项、RISC-V 68 项、GNU ld 30 项，共 118 项自动测试，无失败或跳过；最终精确结果随交付包 manifest.json 和 JUnit XML 保存。
+- 其中 15 项使用真实 IntelliJ Platform unit-test 模式的 PSI/索引/编辑器 API：本地与跨文件定义、普通/数字标签引用搜索、包含文件及其编辑失效、符号与宏补全、宏/标签名字空间、重赋值分组重命名、数字标签修改拒绝、包含文件重命名和保守格式化。该模式不需要 IDE 许可证，不等同于图形主题及完整产品交互验收。
+- 三个插件分别对 RustRover RR-262.11879.102 和 CLion CL-262.11879.106 做离线 Plugin Verifier，六组 Compatible，无阻断兼容性/内部 API/override-only 报告。
+- 三模块结构、项目配置检查、打包资源与命名空间审计通过；组合沙箱已准备。独立 arch-example 编译、打包及结构检查通过，不进入三插件交付容器。
+- tools/smoke/binary.py 在本机实际编译 C、C++ 和 Rust，执行 LLVM nm/symbolizer/cxxfilt：C/Rust 导出别名、C++ 链接名到调试源码行，以及 Rust v0 名字反解均通过。
+- tools/smoke/riscv_catalog.py 直接读取新 ISA 目录的实际示例，用 LLVM MC 分别汇编 RV32 146 条、RV64 207 条；两个集合覆盖全部 212 个新增指令拼写。不会把此检查推广为所有操作数组合合法。
+- GNU ld ALIGN 的零和非二次幂参数按本机实际 ld 输出核对；地址未知、循环、溢出和布局依赖最终输入时保持未知，不猜测结果。
+
+工具链证据记录当前版本与脚本 SHA-256，匹配时才进入交付证据；CLI 验证不是 IDE 菜单/弹窗的 GUI 验收。复现方式见 README.md 和 developer-workflows.md。
+
+## 验证边界
+
+此前发布者提供的完整 IDE 功能与安装/升级/模块组合验收只适用于旧版，不延伸为 0.8 新功能的用户验收。0.8 尚无新的完整 GUI/主题验收，未执行 Windows/macOS、全部 IntelliJ 产品及其他平台版本矩阵。二进制检查与 SDK 编辑器集成覆盖范围明确区分。
+
+GNU 方言之外的语法、完整预处理/宏实例化、ISA 所有编码与特权约束、输入节最终布局及优化后二进制的完整调试语义不在本轮基础编辑模型中；对应工具和输入缺失时不伪造结果。
+
+```bash
+./gradlew releaseBundle :plugins:core:prepareSandbox_runIdeAll \
+  :plugins:arch-example:buildPlugin :plugins:arch-example:verifyPluginStructure \
+  -PwithExampleArchitecture=true \
+  -PlocalIdePath=/absolute/path/to/rustrover \
+  -PadditionalVerificationIdePath=/absolute/path/to/clion
+python3 tools/smoke/binary.py
+python3 tools/smoke/riscv_catalog.py
+```
+
+实际构建仍使用历史记录中的两个 Maven 镜像参数。本地容器：build/releases/masmld-0.8.0-dev.zip；新 GUI 验收与公开发布是后续独立状态。
+
+---
+
 # 0.7.0 发布验证
 
 日期：2026-11-03。

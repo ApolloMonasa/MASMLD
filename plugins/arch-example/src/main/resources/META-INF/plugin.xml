@@ -1,0 +1,14 @@
+<idea-plugin require-restart="true">
+    <id>dev.masmld.example</id>
+    <name>MASMLD Example Architecture (development only)</name>
+    <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
+    <description>Developer tutorial demonstrating a separately packaged MASMLD architecture. This is not an implementation of a real ISA.</description>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>dev.masmld.core</depends>
+    <extensions defaultExtensionNs="dev.masmld.core">
+        <architecture implementation="dev.masmld.example.ExampleArchitecture"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.parserDefinition language="MASMLD Example" implementationClass="dev.masmld.example.ExampleParser"/>
+    </extensions>
+</idea-plugin>

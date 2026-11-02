@@ -1,5 +1,7 @@
 # 架构与扩展约定
 
+当前 0.8 增加文件/目录覆盖、profile/目标选项、静态包含图、通用编辑辅助和可选二进制调试映射。Core 不包含任何 RISC-V 指令语义；架构的目标验证通过可选 ArchitectureOptionsValidator 接口提供。开发者契约与可编译独立示例见 [developer-api.md](developer-api.md)。
+
 ## 发布与依赖
 
 每个 `plugins/*` 子项目分别应用平台构建插件、生成独立 ZIP，不把架构实现打进 Core。RISC-V 通过 `localPlugin(project(":plugins:core"))` 获取编译与沙箱依赖，同时在 plugin.xml 声明必需依赖 `dev.masmld.core`。Core 仅依赖 `com.intellij.modules.platform`，不依赖 Rust、Java、C/C++ 插件。

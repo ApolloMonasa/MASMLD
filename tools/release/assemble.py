@@ -17,7 +17,7 @@ if output.exists():
     shutil.rmtree(output)
 output.mkdir(parents=True)
 manifest = {'version': VERSION, 'plugins': [], 'unit_tests': {}, 'binary_verification': [],
-            'runtime_smoke': 'Publisher reports 0.6.0-dev real IDE and install/upgrade/module-combination acceptance complete; new 0.7.0 macro feature has automated coverage only. See validation.md.'}
+            'runtime_smoke': 'Platform editor tests execute in unit-test mode. Publisher GUI acceptance applies to preceding builds; 0.8 has no new full-GUI acceptance. See validation.md.'}
 for module, plugin_id in MODULES.items():
     artifact = ROOT / f'plugins/{module}/build/distributions/{module}-{VERSION}.zip'
     with zipfile.ZipFile(artifact) as archive:
@@ -71,6 +71,22 @@ for module, plugin_id in MODULES.items():
         for report in verdict.parent.glob('*.txt'):
             shutil.copy2(report, destination / report.name)
         manifest['binary_verification'].append({'plugin': plugin_id, 'ide': ide, 'verdict': verdict.read_text().strip()})
+manifest['toolchain_integration'] = {}
+for label, script, folder in [('binary', 'binary.py', 'toolchain-smoke'), ('riscv_catalog', 'riscv_catalog.py', 'riscv-catalog-smoke')]:
+    source_dir = ROOT / 'build' / folder
+    report = source_dir / 'result.json'
+    if report.exists():
+        result = json.loads(report.read_text())
+        fresh = result.get('version') == VERSION and result.get('script_sha256') == hashlib.sha256((ROOT / 'tools/smoke' / script).read_bytes()).hexdigest()
+    else:
+        fresh = False
+    manifest['toolchain_integration'][label] = {'executed_for_current_version_and_script': fresh}
+    if fresh:
+        target = output / 'evidence/toolchains' / label
+        target.mkdir(parents=True)
+        for path in source_dir.iterdir():
+            if path.suffix in ('.json', '.c', '.cpp', '.rs', '.s'):
+                shutil.copy2(path, target / path.name)
 (output / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 (output / 'INSTALL.md').write_text(f'''# MASMLD {VERSION}
 
@@ -83,12 +99,13 @@ for module, plugin_id in MODULES.items():
 Enable Show quick documentation on hover, or use View → Quick Documentation.
 File type associations already owned by another plugin may need manual selection.
 
-These are GitHub Release packages. Marketplace publication/review is a separate process.
+These are installable local packages; consult the public release page for publication status. Marketplace review is a separate process.
 Licensed under MIT; see LICENSE. Read validation.md for runtime checks and known gaps. SHA256SUMS covers every payload file.
 ''')
 shutil.copy2(ROOT / 'docs/validation.md', output / 'validation.md')
 shutil.copy2(ROOT / 'LICENSE', output / 'LICENSE')
 shutil.copy2(ROOT / 'CHANGELOG.md', output / 'CHANGELOG.md')
+shutil.copy2(ROOT / 'docs/developer-workflows.md', output / 'developer-workflows.md')
 checksums = []
 for path in sorted(output.rglob('*')):
     if path.is_file():
