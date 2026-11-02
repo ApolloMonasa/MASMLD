@@ -9,5 +9,5 @@ import dev.masmld.core.settings.AssemblySettings
 
 class AssemblyLanguageSubstitutor : LanguageSubstitutor() {
     override fun getLanguage(file: VirtualFile, project: Project): Language? =
-        ArchitectureRegistry.find(AssemblySettings.getInstance(project).architectureId)?.language
+        ArchitectureRegistry.find(AssemblySettings.getInstance(project).selection(file.path.removePrefix(project.basePath.orEmpty().trimEnd('/') + "/")).architecture)?.language
 }

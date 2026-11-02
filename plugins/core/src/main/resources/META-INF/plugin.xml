@@ -2,8 +2,8 @@
     <id>dev.masmld.core</id>
     <name>MASMLD Core</name>
     <vendor url="https://github.com/ApolloMonasa">ApolloMonasa</vendor>
-    <description><![CDATA[<p>Modular assembly language infrastructure for IntelliJ Platform IDEs, with RustRover as the primary tested product.</p><ul><li>Shared .asm, .s and .S file types and file icons.</li><li>Per-project architecture selection and an extensible architecture registry.</li><li>Install MASMLD RISC-V for highlighting, offline documentation and navigation, or MASMLD GNU Linker Script for .ld support.</li></ul><p>Core provides generic assembly support on its own. Optional modules are distributed separately. Restart after installing or changing modules; keep all MASMLD modules on the same version.</p>]]></description>
-    <change-notes><![CDATA[<p>0.7.0: First public release under the MIT license. Adds blue/purple modular cube branding and navigation from same-file macro calls and .purgem to .macro definitions. Includes assembly and linker-script highlighting, offline documentation, file icons and host source-symbol navigation.</p>]]></change-notes>
+    <description><![CDATA[<p>Modular assembly language infrastructure for IntelliJ Platform IDEs, with RustRover as the primary tested product.</p><ul><li>Shared .asm, .s and .S file types and file icons.</li><li>Per-project and per-file/directory architecture selection, target options and an extensible architecture registry.</li><li>Install MASMLD RISC-V for highlighting, offline documentation and navigation, or MASMLD GNU Linker Script for .ld support.</li></ul><p>Core provides generic assembly support on its own. Optional modules are distributed separately. Restart after installing or changing modules; keep all MASMLD modules on the same version.</p>]]></description>
+    <change-notes><![CDATA[<p>0.8 development: contextual completion and parameter hints; include-aware symbols; ISA configuration and diagnostics; find usages and rename; structure, folding and formatting; GNU ld expressions and layout hints; optional binary symbol/debug-source navigation. See the repository changelog for coverage and limitations.</p>]]></change-notes>
     <depends>com.intellij.modules.platform</depends>
     <extensionPoints>
         <extensionPoint name="architecture" interface="dev.masmld.core.api.ArchitectureProvider" dynamic="true"/>
@@ -14,9 +14,15 @@
         <lang.syntaxHighlighterFactory language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblySyntaxHighlighterFactory"/>
         <lang.substitutor language="MASMLD Assembly" implementationClass="dev.masmld.core.language.AssemblyLanguageSubstitutor"/>
         <projectService serviceImplementation="dev.masmld.core.settings.AssemblySettings"/>
+        <projectService serviceImplementation="dev.masmld.core.binary.BinarySettings"/>
+        <projectService serviceImplementation="dev.masmld.core.binary.BinarySymbols"/>
+        <projectConfigurable parentId="dev.masmld.settings" id="dev.masmld.binary" displayName="Binary Symbols" instance="dev.masmld.core.binary.BinaryConfigurable"/>
         <projectConfigurable parentId="language" id="dev.masmld.settings" displayName="MASMLD Assembly" instance="dev.masmld.core.settings.AssemblyConfigurable"/>
     </extensions>
     <actions>
+        <action id="dev.masmld.RefreshBinarySymbols" class="dev.masmld.core.binary.RefreshBinarySymbols" text="MASMLD: Refresh Binary Symbols" description="Index defined names from a configured linked artifact">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
         <action id="dev.masmld.ArchitectureStatus" class="dev.masmld.core.actions.ArchitectureStatusAction" text="MASMLD: Show Architecture Status" description="Show available assembly architectures and the project selection">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>

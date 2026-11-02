@@ -16,3 +16,9 @@ interface ArchitectureProvider {
 }
 
 data class ArchitectureProfile(val id: String, val displayName: String)
+
+/** Optional target/dialect validation. Existing providers need not implement this capability. */
+interface ArchitectureOptionsValidator {
+    /** Null means supported; a non-null message is shown before settings are saved. No side effects. */
+    fun validateOptions(profileId: String, dialect: String, target: String): String?
+}
