@@ -70,6 +70,18 @@ class RiscVEditorTest : BasePlatformTestCase() {
         myFixture.checkResult(".Lloop: nop\nj .Lloop")
     }
 
+    fun testTypingEndmDedentsOnlyTheDirective() {
+        for (indent in listOf("    ", "\t\t")) {
+            val body = ".macro HELLO\n    nop\n"
+            myFixture.configureByText("macro.asm", body + indent + "<caret>")
+            myFixture.type(".endm")
+            myFixture.checkResult(body + ".endm<caret>")
+        }
+        myFixture.configureByText("macro.asm", "/*\n    <caret>\n*/")
+        myFixture.type(".endm")
+        myFixture.checkResult("/*\n    .endm<caret>\n*/")
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro
