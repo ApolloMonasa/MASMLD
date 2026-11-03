@@ -1,6 +1,6 @@
 # GNU ld 模块：0.8 当前说明
 
-0.8.0-dev 的新增能力和限制见 [开发者编辑能力](developer-workflows.md) 与 [需求覆盖表](development-matrix.md)。RISC-V 目录现有 465 个名称；GNU ld 增加了符号、包含图与常量/布局分析。Core 和已安装的可选模块始终使用同一版本。
+0.8.0-rc.1 的新增能力和限制见 [开发者编辑能力](developer-workflows.md) 与 [需求覆盖表](development-matrix.md)。RISC-V 目录现有 467 个名称；GNU ld 增加了符号、包含图与常量/布局分析。Core 和已安装的可选模块始终使用同一版本。
 
 以下保留首版实现与资料来源记录，其中旧版本号及“尚未支持”的表述仅适用于历史阶段；当前能力以上述文档为准。
 

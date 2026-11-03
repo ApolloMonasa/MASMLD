@@ -1,14 +1,16 @@
 # Changelog
 
-## 0.8.0-dev — Unreleased
+## 0.8.0-rc.1 — 2026-11-03
 
 - Add per-file/directory/glob architecture overrides, profile and GNU target validation, include paths, and a buildable optional architecture tutorial.
 - Add contextual RISC-V completion, parameter information, project exports index, static include/macro navigation and ISA scopes.
-- Extend the offline catalog to 465 names, including M/A/F/D/C, Zicsr/Zifencei, floating registers and CSR aliases; add XLEN/operand diagnostics and an ISA quick fix.
+- Extend the offline catalog to 467 names, including M/A/F/D/C, Zicsr/Zifencei, floating registers and CSR aliases; add XLEN/operand diagnostics and an ISA quick fix.
 - Add Find Usages, rename conflict checks and grouped assignment renames, numeric label usage search, structure views, folding and conservative formatting.
 - Add GNU ld symbol/region/section/REGION_ALIAS navigation, INCLUDE resolution, completion, checked constant expressions and layout hints.
 - Add Rust/C/C++ export aliases, name demangling, optional exact binary-symbol indexing and source-line navigation through debug information.
 - Add platform editor integration tests and actual C/C++/Rust, ELF and RISC-V assembler protocol checks.
+- Fix directive completion around leading dots and existing suffixes, dotted label completion, and Enter indentation around macro blocks.
+- Resolve macros through sibling assembly includes and recognize GNU as alternate macro directives.
 
 ## 0.7.0 — 2026-11-03
 
