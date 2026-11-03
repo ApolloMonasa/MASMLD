@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0-rc.2 — 2026-11-03
+
+- Indent one level on Enter after standalone RISC-V labels, using the editor code style.
+
 ## 0.8.0-rc.1 — 2026-11-03
 
 - Add per-file/directory/glob architecture overrides, profile and GNU target validation, include paths, and a buildable optional architecture tutorial.
