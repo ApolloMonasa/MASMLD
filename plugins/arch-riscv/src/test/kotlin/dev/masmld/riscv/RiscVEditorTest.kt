@@ -82,6 +82,25 @@ class RiscVEditorTest : BasePlatformTestCase() {
         myFixture.checkResult("/*\n    .endm<caret>\n*/")
     }
 
+    fun testEndmDedentsWhileCompletionIsOpen() {
+        val body = ".macro .endother\n.endm\n.macro HELLO\n    nop\n"
+        myFixture.configureByText("macro.asm", body + "    .end<caret>")
+        myFixture.completeBasic()
+        requireNotNull(myFixture.lookup)
+        myFixture.type('m')
+        myFixture.checkResult(body + ".endm<caret>")
+    }
+
+    fun testAcceptingEndmCompletionDedents() {
+        val body = ".macro .endother\n.endm\n.macro HELLO\n    nop\n"
+        myFixture.configureByText("macro.asm", body + "    .end<caret>")
+        myFixture.completeBasic()
+        val lookup = requireNotNull(myFixture.lookup)
+        lookup.currentItem = lookup.items.single { it.lookupString == ".endm" }
+        myFixture.finishLookup(com.intellij.codeInsight.lookup.Lookup.NORMAL_SELECT_CHAR)
+        myFixture.checkResult(body + ".endm<caret>")
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro

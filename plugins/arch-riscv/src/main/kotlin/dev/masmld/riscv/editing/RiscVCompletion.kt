@@ -52,14 +52,15 @@ class RiscVCompletion : CompletionContributor() {
                 .withTailText("  ${entry.syntax}", true)
             if (entry.kind == K.DIRECTIVE && prefix.startsWith('.')) {
                 val suffix = source.drop(offset).takeWhile { it.isLetterOrDigit() || it in "_.\$" }
-                if (suffix.isNotEmpty()) {
+                if (suffix.isNotEmpty() || entry.name == ".endm") {
                     candidate = candidate.withInsertHandler { context, _ ->
                         val tail = context.tailOffset
-                        if (context.completionChar == Lookup.NORMAL_SELECT_CHAR &&
+                        if (suffix.isNotEmpty() && context.completionChar == Lookup.NORMAL_SELECT_CHAR &&
                             context.document.charsSequence.startsWith(suffix, tail)
                         ) {
                             context.document.deleteString(tail, tail + suffix.length)
                         }
+                        if (entry.name == ".endm") dedentEndMacro(context.editor, context.file, context.tailOffset)
                     }
                 }
             }
