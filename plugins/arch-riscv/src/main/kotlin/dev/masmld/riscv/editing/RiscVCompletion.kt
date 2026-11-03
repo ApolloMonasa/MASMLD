@@ -12,16 +12,6 @@ import dev.masmld.riscv.symbols.RiscVProgram
 
 /** Context calculation also works on the original document before the IDE inserts its dummy identifier. */
 object RiscVCompletionContext {
-    fun activeMacros(source: String, offset: Int): Map<String, Int> {
-        val active = linkedMapOf<String, Int>(); var depth = 0
-        val tokens = SourceText.tokens(source.take(offset.coerceIn(0, source.length)))
-        for ((i, token) in tokens.withIndex()) {
-            if (token.text == ".macro") { if (depth == 0) tokens.getOrNull(i + 1)?.let { active[it.text] = it.start }; depth++ }
-            if (token.text == ".endm") depth = (depth - 1).coerceAtLeast(0)
-            if (depth == 0 && token.text == ".purgem") tokens.getOrNull(i + 1)?.let { active.remove(it.text) }
-        }
-        return active
-    }
     fun head(source: String, offset: Int): Boolean? {
         val token = SourceText.tokens(source, true).firstOrNull { offset > it.start && (offset < it.end || offset == it.end && it.kind == SourceToken.Kind.COMMENT && !it.text.endsWith("*/")) }
         if (token?.kind in setOf(SourceToken.Kind.STRING, SourceToken.Kind.COMMENT)) return null
@@ -73,7 +63,11 @@ class RiscVCompletion : CompletionContributor() {
                 com.intellij.util.indexing.FileBasedIndex.getInstance().processAllKeys(dev.masmld.riscv.symbols.RiscVExportIndex.ID, com.intellij.util.Processor<String> { name ->
                     com.intellij.openapi.progress.ProgressManager.checkCanceled()
                     if (completions.prefixMatcher.prefixMatches(name) && com.intellij.util.indexing.FileBasedIndex.getInstance().getContainingFiles(dev.masmld.riscv.symbols.RiscVExportIndex.ID, name, scope).any { candidate ->
-                            AssemblySettings.getInstance(file.project).selection(candidate.path.removePrefix(file.project.basePath.orEmpty() + "/")).architecture == "riscv"
+                            candidate.url !in program.files &&
+                                AssemblySettings.getInstance(file.project).selection(candidate.path.removePrefix(file.project.basePath.orEmpty() + "/")).architecture == "riscv" &&
+                                com.intellij.psi.PsiManager.getInstance(file.project).findFile(candidate)?.let { candidateFile ->
+                                    RiscVProgram.get(candidateFile).symbols.definitions.any { it.exported && it.name == name }
+                                } == true
                         }) {
                         completions.addElement(LookupElementBuilder.create(name).withTypeText("project export")); count++
                     }
@@ -81,8 +75,8 @@ class RiscVCompletion : CompletionContributor() {
                 }, scope, null)
             } catch (_: com.intellij.openapi.project.IndexNotReadyException) { /* Local suggestions remain available. */ }
         }
-        val expandedOffset = program.expanded.expandedOffset(file.virtualFile?.url.orEmpty(), offset - 1) ?: Int.MAX_VALUE
-        program.symbols.definitions.filter { if (head) it.macro && it.start in RiscVCompletionContext.activeMacros(program.expanded.text, expandedOffset).values else !it.macro }.distinctBy { it.name }.forEach { def ->
+        val activeMacros = if (head) program.macroTargetsAt(file, offset) else emptySet()
+        program.symbols.definitions.filter { if (head) it.macro && it.start in activeMacros else !it.macro }.distinctBy { it.name }.forEach { def ->
             completions.addElement(LookupElementBuilder.create(def.name).withTypeText(if (def.macro) "macro" else "symbol"))
         }
         // Macro parameters are offered only inside their own lexical macro body.

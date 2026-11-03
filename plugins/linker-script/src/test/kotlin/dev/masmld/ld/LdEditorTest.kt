@@ -5,6 +5,25 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleManager
 
 class LdEditorTest : BasePlatformTestCase() {
+    fun testGnuMapResolvesSymbolsAndSectionsInIncludedScript() {
+        val included = myFixture.addFileToProject("layout.inc", """
+            SECTIONS {
+                .text : { *(.text*) __text_end = .; }
+                .very_long_output_section_name : { BYTE(1); }
+            }
+        """.trimIndent())
+        myFixture.configureByText("app.ld", "INCLUDE layout.inc")
+        val source = requireNotNull(javaClass.getResource("/fixtures/gnu-ld.map")).readText()
+        val map = requireNotNull(dev.masmld.ld.map.GnuLinkerMap.parse(source))
+        for (name in listOf(".very_long_output_section_name", "__text_end")) {
+            val entry = map.entries.single { it.name == name }
+            val target = dev.masmld.ld.map.scriptTargets(myFixture.file, entry).single()
+            assertEquals(included.virtualFile, target.containingFile.virtualFile)
+            assertEquals(name, included.text.substring(target.textOffset, target.textOffset + name.length))
+        }
+        assertEmpty(dev.masmld.ld.map.scriptTargets(myFixture.file, map.entries.single { it.name == "member_entry" }))
+    }
+
     fun testRegionReferenceAndIncludeNavigation() {
         myFixture.addFileToProject("memory.inc", "MEMORY { RAM : ORIGIN = 0x8000, LENGTH = 16K }\n")
         val file = myFixture.addFileToProject("app.ld", "INCLUDE memory.inc\nSECTIONS { .text : { *(.text) } > RAM }\n")

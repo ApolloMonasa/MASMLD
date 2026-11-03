@@ -1,0 +1,50 @@
+Archive member included to satisfy reference by file (symbol)
+
+lib sample.a(member file.o)   (member_entry)
+
+Merging object attributes
+
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000080000000        0x8 load address 0x0000000000001000
+ *(.text*)
+ .text          0x0000000080000000        0x4 entry.o
+                0x0000000080000000                entry
+ .text          0x0000000080000004        0x0 lib sample.a(member file.o)
+ .text.very_long_member_section
+                0x0000000080000004        0x4 lib sample.a(member file.o)
+                0x0000000080000004                member_entry
+                [!provide]                        PROVIDE (omitted = .)
+                0x0000000080000008                PROVIDE (emitted = .)
+                0x0000000080000008                __text_end = .
+
+.data           0x0000000080000008        0x0 load address 0x0000000000001008
+ .data          0x0000000080000008        0x0 entry.o
+ .data          0x0000000080000008        0x0 lib sample.a(member file.o)
+
+.very_long_output_section_name
+                0x0000000080000008        0x1 load address 0x0000000000001008
+                0x0000000080000008        0x1 BYTE 0x1
+LOAD entry.o
+LOAD lib sample.a
+OUTPUT(linked.elf elf64-littleriscv)
+
+.bss            0x0000000080000009        0x0 load address 0x0000000000001009
+ .bss           0x0000000080000009        0x0 entry.o
+ .bss           0x0000000080000009        0x0 lib sample.a(member file.o)
+
+.riscv.attributes
+                0x0000000000000000       0x1a
+ .riscv.attributes
+                0x0000000000000000       0x1a entry.o
+ .riscv.attributes
+                0x000000000000001a       0x1a lib sample.a(member file.o)

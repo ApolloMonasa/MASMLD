@@ -22,6 +22,13 @@ class RiscVRename : RenamePsiElementProcessor() {
     override fun canProcessElement(element: PsiElement) = element is RiscVSymbolDefinition
     override fun renameElement(element: PsiElement, newName: String, usages: Array<com.intellij.usageView.UsageInfo>, listener: com.intellij.refactoring.listeners.RefactoringElementListener?) {
         if ((element as RiscVSymbolDefinition).name?.all(Char::isDigit) == true) throw com.intellij.util.IncorrectOperationException("Numeric local labels cannot be renamed")
+        val own = dev.masmld.riscv.symbols.RiscVSymbolReferences.symbols(element.containingFile)
+            .definitions.firstOrNull { it.start == element.textOffset }
+        if (own?.macro == true && usages.any { usage ->
+                (usage.reference as? PsiPolyVariantReference)?.multiResolve(false)?.size?.let { it > 1 } == true
+            }) {
+            throw com.intellij.util.IncorrectOperationException("宏调用可能绑定到多个条件分支，无法安全重命名")
+        }
         super.renameElement(element, newName, usages, listener)
     }
     override fun prepareRenaming(element: PsiElement, newName: String, allRenames: MutableMap<PsiElement, String>) {

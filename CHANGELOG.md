@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0-dev — Unreleased
+
+- Inspect GNU ld map addresses and input objects, with navigation to matching linker-script definitions.
+- Pinpoint invalid RISC-V operands and check absolute immediate, relocation and compressed-offset constraints.
+- Use statically known GNU as conditional branches for RISC-V completion and navigation, retaining possible targets for unknown conditions.
+- Check GNU as macro arguments and preview static macro expansion with navigation to the definition.
+
 ## 0.8.0 — 2026-11-03
 
 - Promote the 0.8 release candidates after RustRover editor acceptance.
@@ -36,8 +43,8 @@ First public release, licensed under MIT and published by ApolloMonasa.
 - New: same-file `.macro` call and `.purgem` navigation, including redefinition and recursive calls.
 - User reports completing real IDE feature acceptance and installation, upgrade and module-combination checks for the preceding 0.6.0-dev build. New macro navigation is covered by automated tests; it has not received separate user GUI acceptance.
 
-Known limits: build 262 or newer; tested binary compatibility with the RustRover and CLion builds documented in docs/validation.md. No macro expansion, include/preprocessor evaluation, C++ name demangling, linker-script symbol navigation, RV32/RV64 legality checking, x86 or ARM module yet.
+Known limits: build 262 or newer; binary compatibility checked with RustRover and CLion. No macro expansion, include/preprocessor evaluation, C++ name demangling, linker-script symbol navigation, RV32/RV64 legality checking, x86 or ARM module yet.
 
 ## Development previews
 
-0.1–0.6 introduced modular architecture, RISC-V syntax support, offline documentation, standalone GNU ld support, release verification, file icons and source-symbol navigation. Historical evidence remains in docs/validation.md.
+0.1–0.6 introduced modular architecture, RISC-V syntax support, offline documentation, standalone GNU ld support, release verification, file icons and source-symbol navigation.

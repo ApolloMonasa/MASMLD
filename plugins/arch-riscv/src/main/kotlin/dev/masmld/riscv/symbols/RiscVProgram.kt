@@ -11,7 +11,14 @@ import dev.masmld.core.source.ExpandedSource
 import dev.masmld.riscv.psi.RiscVSymbolDefinition
 
 class RiscVProgram(val expanded: ExpandedSource, val files: Map<String, PsiFile>) {
-    val symbols = RiscVSymbols.analyze(expanded.text)
+    private val conditions = RiscVConditions(expanded.text, expanded.unresolvedIncludes)
+    val symbols = RiscVSymbols.analyze(expanded.text, conditions)
+    fun macroTargetsAt(file: PsiFile, offset: Int): Set<Int> {
+        val id = files.entries.firstOrNull { it.value == file }?.key ?: return emptySet()
+        val mapped = if (offset > 0) expanded.expandedOffset(id, offset - 1)?.plus(1) else expanded.expandedOffset(id, offset)
+        return conditions.macrosAt(mapped ?: 0)
+    }
+    internal val macros by lazy { dev.masmld.riscv.editing.RiscVMacros(this) }
     private val scopes by lazy { dev.masmld.riscv.editing.RiscVTargetScopes.build(expanded.text, dev.masmld.riscv.editing.RiscVIsa.target(files.values.first())) }
     fun targetAt(file: PsiFile, offset: Int): dev.masmld.riscv.editing.IsaTarget? {
         val id = files.entries.firstOrNull { it.value == file }?.key ?: return dev.masmld.riscv.editing.RiscVIsa.target(file)

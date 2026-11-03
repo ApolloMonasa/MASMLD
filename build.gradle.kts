@@ -63,7 +63,7 @@ tasks.register<JavaExec>("verifyAllPlugins") {
 // Produces a reviewable local bundle. It neither signs nor publishes plugins.
 tasks.register<Exec>("releaseBundle") {
     group = "distribution"
-    description = "Test, verify and package independent plugin ZIPs with checksums and evidence"
+    description = "Test, verify and package independent plugin ZIPs with checksums"
     dependsOn("verifyAllPlugins")
     dependsOn(pluginModules.flatMap { module -> listOf(
         ":plugins:$module:test", ":plugins:$module:verifyPluginStructure", ":plugins:$module:verifyPluginProjectConfiguration",

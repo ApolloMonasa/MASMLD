@@ -44,7 +44,7 @@ object RiscVSymbolReferences {
             val file = element.containingFile
             val program = RiscVProgram.get(file)
             val local = program.symbols.resolve(use).mapNotNull(program::definition)
-            if (use.macroTarget != null || local.isNotEmpty() || use.name.matches(Regex("[0-9]+[fb]")) || use.name.startsWith(".L")) {
+            if (use.macroTargets.isNotEmpty() || local.isNotEmpty() || use.name.matches(Regex("[0-9]+[fb]")) || use.name.startsWith(".L")) {
                 return local.map { PsiElementResolveResult(it) }.toTypedArray()
             }
             val project = element.project
@@ -55,7 +55,7 @@ object RiscVSymbolReferences {
                 // Exact exported-name index, including ordinary .inc files; never scan the entire project.
                 for (virtualFile in com.intellij.util.indexing.FileBasedIndex.getInstance().getContainingFiles(RiscVExportIndex.ID, use.name, scope)) {
                     ProgressManager.checkCanceled()
-                    if (virtualFile != file.virtualFile && virtualFile.length <= 1_000_000 && (virtualFile.fileType == AssemblyFileType || virtualFile.extension?.lowercase() == "inc")) {
+                    if (virtualFile.url !in program.files && virtualFile.length <= 1_000_000 && (virtualFile.fileType == AssemblyFileType || virtualFile.extension?.lowercase() == "inc")) {
                         val candidate = PsiManager.getInstance(project).findFile(virtualFile)
                         if (candidate != null && (candidate.language.isKindOf(RiscVLanguage) || virtualFile.extension?.lowercase() == "inc")) {
                             RiscVProgram.get(candidate).let { other -> other.symbols.definitions.filter { it.exported && it.name == use.name }

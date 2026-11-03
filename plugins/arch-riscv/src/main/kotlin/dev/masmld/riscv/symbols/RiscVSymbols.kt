@@ -7,17 +7,21 @@ import dev.masmld.riscv.highlighting.RiscVRole
 import dev.masmld.riscv.lexer.RiscVLexer
 import dev.masmld.riscv.lexer.RiscVTokens as T
 
-data class AssemblySymbolDefinition(val name: String, val start: Int, val end: Int, val exported: Boolean, val macro: Boolean = false)
-data class AssemblySymbolReference(val name: String, val start: Int, val end: Int, val macroTarget: Int? = null)
+data class AssemblySymbolDefinition(val name: String, val start: Int, val end: Int, val exported: Boolean, val macro: Boolean = false, val conditional: Boolean = false)
+data class AssemblySymbolReference(val name: String, val start: Int, val end: Int, val macroTargets: Set<Int> = emptySet()) {
+    val macroTarget: Int? get() = macroTargets.singleOrNull()
+}
 data class AssemblySymbols(val definitions: List<AssemblySymbolDefinition>, val references: List<AssemblySymbolReference>) {
     fun resolve(reference: AssemblySymbolReference): List<AssemblySymbolDefinition> {
-        if (reference.macroTarget != null) return definitions.filter { it.macro && it.start == reference.macroTarget }
+        if (reference.macroTargets.isNotEmpty()) return definitions.filter { it.macro && it.start in reference.macroTargets }
         if (reference.name.matches(Regex("[0-9]+[fb]"))) {
             val name = reference.name.dropLast(1)
-            val matches = definitions.filter { it.name == name }
-            val target = if (reference.name.last() == 'f') matches.filter { it.start > reference.start }.minByOrNull { it.start }
-                else matches.filter { it.start < reference.start }.maxByOrNull { it.start }
-            return listOfNotNull(target)
+            val forward = reference.name.last() == 'f'
+            val matches = definitions.filter {
+                !it.macro && it.name == name && if (forward) it.start > reference.start else it.start < reference.start
+            }.sortedBy { if (forward) it.start else -it.start }
+            val definite = matches.indexOfFirst { !it.conditional }
+            return if (definite < 0) matches else matches.take(definite + 1)
         }
         return definitions.filter { !it.macro && it.name == reference.name }
     }
@@ -30,22 +34,65 @@ object RiscVSymbols {
     private val declarationDirectives = setOf(".globl", ".global", ".weak", ".local", ".hidden")
     private val expressionDirectives = setOf(".size", ".byte", ".2byte", ".half", ".short", ".4byte", ".word", ".long", ".8byte", ".dword", ".quad", ".space", ".skip", ".zero", ".fill", ".align", ".balign", ".p2align", ".org", ".uleb128", ".sleb128")
 
-    fun analyze(source: CharSequence): AssemblySymbols {
+    fun analyze(source: CharSequence): AssemblySymbols = analyze(source, null)
+
+    internal fun analyze(source: CharSequence, conditions: RiscVConditions?): AssemblySymbols {
         val roles = RiscVClassifier.classify(source).associate { it.start to it.role }
         val definitions = mutableListOf<Token>()
         val references = mutableListOf<AssemblySymbolReference>()
         val macros = mutableListOf<Token>()
-        val activeMacros = mutableMapOf<String, Token>()
+        val activeMacros = mutableMapOf<String, Set<Int>>()
+        val conditionalDefinitions = hashSetOf<Int>()
         val exported = mutableSetOf<String>()
         val local = mutableSetOf<String>()
         var macroDepth = 0
+        var repeatDepth = 0
+        var inactiveMacroDepth = 0
+        fun macroTargets(name: String) = conditions?.macros(name) ?: activeMacros[name].orEmpty()
+        fun setMacro(name: String, targets: Set<Int>, offset: Int) {
+            if (conditions != null) conditions.setMacro(name, targets, offset)
+            else if (targets.isEmpty()) activeMacros.remove(name) else activeMacros[name] = targets
+        }
+        fun macroReference(token: Token, targets: Set<Int>): Boolean {
+            if (targets.isEmpty()) return false
+            references += AssemblySymbolReference(token.text, token.start, token.end, targets)
+            return true
+        }
+        fun addDefinition(token: Token) {
+            definitions += token
+            if (conditions != null && (conditions.conditional || repeatDepth > 0)) conditionalDefinitions += token.start
+        }
         fun statement(tokens: List<Token>) {
             if (tokens.isEmpty()) return
+            if (conditions != null) com.intellij.openapi.progress.ProgressManager.checkCanceled()
+            var head = 0
+            while (head + 1 < tokens.size && tokens[head].type in setOf(T.IDENTIFIER, T.NUMBER) && tokens[head + 1].type == T.COLON) head += 2
+            val command = tokens.getOrNull(head)
+            val name = command?.text.orEmpty()
+            val argument = command?.let { source.subSequence(it.end, tokens.last().end).toString().trim() }.orEmpty()
+            if (inactiveMacroDepth > 0) {
+                if (name == ".macro") inactiveMacroDepth++
+                if (name == ".endm") inactiveMacroDepth--
+                return
+            }
+            if (macroDepth == 0 && conditions?.statement(name, argument, command?.start ?: tokens.first().start, tokens.last().end) == false) {
+                if (name == ".macro") inactiveMacroDepth++
+                return
+            }
+            if (name in setOf(".rept", ".rep", ".irp", ".irpc")) {
+                if (macroDepth == 0) { repeatDepth++; conditions?.invalidateValues() }
+                return
+            }
+            if (name == ".endr" && macroDepth == 0) {
+                repeatDepth = (repeatDepth - 1).coerceAtLeast(0)
+                conditions?.invalidateValues()
+                return
+            }
             if (tokens.first().text == ".macro") {
                 // Nested definitions are expansion-time constructs, not file-scope declarations.
                 if (macroDepth == 0) tokens.getOrNull(1)?.takeIf { it.type == T.IDENTIFIER }?.let {
                     macros += it
-                    activeMacros[it.text] = it
+                    setMacro(it.text, if (repeatDepth > 0) macroTargets(it.text) + it.start else setOf(it.start), tokens.last().end)
                 }
                 macroDepth++
                 return
@@ -53,46 +100,46 @@ object RiscVSymbols {
             if (tokens.first().text == ".endm") { if (macroDepth > 0) macroDepth--; return }
             if (tokens.first().text == ".purgem") {
                 if (macroDepth == 0) tokens.getOrNull(1)?.let { name ->
-                    activeMacros.remove(name.text)?.let { definition ->
-                        references += AssemblySymbolReference(name.text, name.start, name.end, definition.start)
-                    }
+                    macroReference(name, macroTargets(name.text))
+                    if (repeatDepth == 0) setMacro(name.text, emptySet(), name.end)
                 }
                 return
             }
             if (macroDepth > 0) {
                 // Allow calls to already declared macros (including recursion); exclude body labels/parameters.
-                if (macroDepth == 1) activeMacros[tokens.first().text]?.let { definition ->
-                    val call = tokens.first()
-                    references += AssemblySymbolReference(call.text, call.start, call.end, definition.start)
-                }
+                if (macroDepth == 1) macroReference(tokens.first(), macroTargets(tokens.first().text))
                 return
             }
-            var head = 0
-            while (head + 1 < tokens.size && tokens[head].type in setOf(T.IDENTIFIER, T.NUMBER) && tokens[head + 1].type == T.COLON) {
-                definitions += tokens[head]
-                head += 2
+            for (index in 0 until head step 2) {
+                val label = tokens[index]
+                addDefinition(label)
+                if (repeatDepth == 0) conditions?.define(label.text)
             }
-            if (head >= tokens.size) return
-            val command = tokens[head]
-            activeMacros[command.text]?.let { definition ->
-                references += AssemblySymbolReference(command.text, command.start, command.end, definition.start)
+            if (command == null) return
+            if (macroReference(command, macroTargets(command.text))) {
+                conditions?.invalidateValues()
                 return
             }
             var operands = tokens.drop(head + 1)
             when {
                 command.type == T.IDENTIFIER && operands.firstOrNull()?.text == "=" -> {
-                    definitions += command
+                    addDefinition(command)
+                    if (repeatDepth == 0) conditions?.define(command.text, argument.substringAfter('='))
                     operands = operands.drop(1)
                 }
                 command.text in constantDirectives -> {
                     if (operands.firstOrNull()?.type != T.IDENTIFIER) return
-                    definitions += operands.first()
+                    addDefinition(operands.first())
+                    if (repeatDepth == 0) {
+                        val value = argument.substringAfter(',', "")
+                        conditions?.define(operands.first().text, value)
+                    }
                     operands = operands.drop(1)
                 }
                 command.text in declarationDirectives -> {
                     val names = operands.filter { it.type == T.IDENTIFIER }.map { it.text }
                     if (command.text in setOf(".globl", ".global", ".weak")) exported += names
-                    if (command.text == ".local") local += names
+                    if (command.text == ".local" && conditions?.conditional != true && repeatDepth == 0) local += names
                 }
                 command.text == ".type" -> operands = operands.take(1)
                 command.text in expressionDirectives -> Unit
@@ -122,7 +169,7 @@ object RiscVSymbols {
         }
         statement(tokens)
         return AssemblySymbols(definitions.map {
-            AssemblySymbolDefinition(it.text, it.start, it.end, it.text in exported && it.text !in local && !it.text.startsWith(".L") && !it.text.all(Char::isDigit))
+            AssemblySymbolDefinition(it.text, it.start, it.end, it.text in exported && it.text !in local && !it.text.startsWith(".L") && !it.text.all(Char::isDigit), conditional = it.start in conditionalDefinitions)
         } + macros.map { AssemblySymbolDefinition(it.text, it.start, it.end, false, macro = true) }, references)
     }
 }

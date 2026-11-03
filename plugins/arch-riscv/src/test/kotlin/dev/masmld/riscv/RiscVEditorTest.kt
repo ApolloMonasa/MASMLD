@@ -43,6 +43,220 @@ class RiscVEditorTest : BasePlatformTestCase() {
         }
     }
 
+    fun testInstructionDiagnosticsHighlightOnlyInvalidOperands() {
+        val source = """
+            addi a0, x32, (0x800 + 1)
+            ld a0, 4096(fa0)
+            c.ld a0, 3(a1)
+            c.lwsp a0, 4(a1)
+            csrrwi a0, 0x1000, 32
+            addi a0, a1, %hi(symbol)
+            fadd.s fa0, fa1, fa2, invalid
+        """.trimIndent()
+        myFixture.configureByText("diagnostics.s", source)
+        val expected = listOf("x32", "(0x800 + 1)", "fa0", "4096", "3", "a1", "0x1000", "32", "%hi(symbol)", "invalid")
+        val warnings = myFixture.doHighlighting(com.intellij.lang.annotation.HighlightSeverity.WARNING)
+            .filter { it.severity == com.intellij.lang.annotation.HighlightSeverity.WARNING }
+            .map { source.substring(it.startOffset, it.endOffset) }
+        assertEquals(expected.sorted(), warnings.sorted())
+    }
+
+    fun testImmediateChecksRespectXlenAndLeaveSymbolicOperandsAlone() {
+        val common = """
+            addi a0, a1, 0xffffffff
+            slli a0, a1, 32
+            lw a0, (symbol)
+            lw a0, %pcrel_lo(symbol)(sp)
+            c.lwsp a0, 252(sp)
+        """.trimIndent()
+        assertEquals(listOf("32"), diagnosticText(common, "rv32gc"))
+        assertEquals(listOf("0xffffffff"), diagnosticText(common, "rv64gc"))
+    }
+
+    private fun diagnosticText(source: String, isa: String): List<String> =
+        dev.masmld.riscv.editing.RiscVDiagnostics.analyze(source, dev.masmld.riscv.editing.RiscVIsa.parse(isa))
+            .map { source.substring(it.start, it.end) }
+
+    fun testKnownConditionsFilterCompletionAndNavigationAcrossIncludes() {
+        val enabled = myFixture.addFileToProject("enabled.inc", ".globl feature_on\nfeature_on: nop\n")
+        myFixture.addFileToProject("disabled.inc", ".globl feature_off\nfeature_off: nop\n")
+        val body = """
+            .equ SHIFT, 2
+            .set FLAG, 1 + SHIFT << 3
+            .if FLAG == 24
+            .include "disabled.inc"
+            .elseif FLAG == 17
+                .ifdef FLAG
+                    .include "enabled.inc"
+                .endif
+            .else
+            .include "disabled.inc"
+            .endif
+
+        """.trimIndent()
+        myFixture.configureByText("conditions.s", "$body\nj feature_<caret>")
+        val variants = myFixture.completeBasic()
+        assertFalse(variants.orEmpty().any { it.lookupString == "feature_off" })
+        assertTrue(variants.orEmpty().any { it.lookupString == "feature_on" } || myFixture.file.text.endsWith("j feature_on"))
+        myFixture.configureByText("conditions.s", "$body\nj feature_on\nj feature_off")
+        val file = myFixture.file
+        assertEquals(enabled.virtualFile, file.findReferenceAt(file.text.lastIndexOf("feature_on"))?.resolve()?.containingFile?.virtualFile)
+        assertNull(file.findReferenceAt(file.text.lastIndexOf("feature_off"))?.resolve())
+    }
+
+    fun testUnknownConditionalRetainsMacroTargetsAndMergesConstantFacts() {
+        val body = """
+            .if BUILD_FLAG
+                .macro SHARED
+                    nop
+                .endm
+                .macro POSSIBLE
+                    nop
+                .endm
+                .set SAME, 1
+            .else
+                .macro SHARED
+                    ret
+                .endm
+                .set SAME, 1
+            .endif
+            .if SAME
+                .macro ACTIVE
+                    nop
+                .endm
+            .else
+                .macro INACTIVE
+                    ret
+                .endm
+            .endif
+            SHARED
+        """.trimIndent()
+        myFixture.configureByText("conditions.s", "$body\n")
+        val file = myFixture.file
+        val reference = file.findReferenceAt(file.text.lastIndexOf("SHARED")) as com.intellij.psi.PsiPolyVariantReference
+        assertEquals(2, reference.multiResolve(false).size)
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(file)
+        val visible = program.macroTargetsAt(file, file.textLength)
+        assertEquals(setOf("SHARED", "POSSIBLE", "ACTIVE"), program.symbols.definitions.filter { it.start in visible }.map { it.name }.toSet())
+    }
+
+    fun testUnknownConditionsRetainOrdinaryLabelCandidates() {
+        val source = ".if EXTERNAL\ntarget: nop\n.else\ntarget: ret\n.endif\nj target"
+        myFixture.configureByText("conditions.s", source)
+        val reference = myFixture.file.findReferenceAt(source.lastIndexOf("target")) as com.intellij.psi.PsiPolyVariantReference
+        assertEquals(2, reference.multiResolve(false).size)
+    }
+
+    fun testUnknownConditionalPurgePreservesPossibleMacroCompletion() {
+        val body = ".macro WORK\nnop\n.endm\n.if EXTERNAL\n.purgem WORK\n.endif\n"
+        myFixture.configureByText("conditions.s", "${body}WOR<caret>")
+        val variants = myFixture.completeBasic()
+        assertTrue(variants.orEmpty().any { it.lookupString == "WORK" } || myFixture.file.text.endsWith("WORK"))
+    }
+
+    fun testMissingIncludeOnlyInvalidatesFactsOnAReachablePath() {
+        val body = """
+            .set VALUE, 0
+            .if VALUE
+                .include "missing.inc"
+            .endif
+            .ifeq VALUE
+                active: nop
+            .else
+                inactive: nop
+            .endif
+        """.trimIndent()
+        myFixture.configureByText("conditions.s", body)
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(myFixture.file)
+        assertEquals(setOf("VALUE", "active"), program.symbols.definitions.map { it.name }.toSet())
+    }
+
+    fun testMacroPreviewUsesIncludedDefinitionAndDefaultValues() {
+        val definition = myFixture.addFileToProject(
+            "sub.s", ".macro SAVE_SN n:req, reg=a0\n    sd s\\n, (\\n+2)*8(\\reg)\n.endm\n"
+        )
+        myFixture.configureByText("main.s", ".include \"sub.s\"\n    SAVE_SN 1\n")
+        val file = myFixture.file
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(file)
+        val (reference, _) = program.references(file, 0, file.textLength).single { it.first.macroTarget != null }
+        val call = requireNotNull(program.macros.callAt(reference.start))
+        assertEquals(mapOf("n" to "1", "reg" to "a0"), call.bindings)
+        assertEmpty(call.problems)
+        assertEquals("sd s1, (1+2)*8(a0)", call.expansion().trim())
+        assertEquals(definition.virtualFile, program.definition(program.symbols.resolve(reference).single())?.containingFile?.virtualFile)
+    }
+
+    fun testMacroDiagnosticsUseTheCallSiteAndActiveMacroMode() {
+        val header = ".macro SAVE_SN n:req, reg=a0\n    nop\n.endm\n"
+        val cases = listOf(
+            "SAVE_SN" to "缺少必填宏参数：n",
+            "SAVE_SN n=1,n=2" to "宏参数重复传入：n",
+            "SAVE_SN n=1,other=2" to "未知的宏参数：other",
+            "SAVE_SN 1,a1,a2" to "宏位置参数过多",
+            ".altmacro\nSAVE_SN n=1" to ".altmacro 仅支持位置传参",
+        )
+        for ((source, message) in cases) {
+            val text = header + source
+            myFixture.configureByText("macro.s", text)
+            val diagnostics = dev.masmld.riscv.editing.RiscVFileDiagnostics.get(myFixture.file)
+            val problem = diagnostics.single { it.message.startsWith(message) }
+            assertEquals(text.lastIndexOf("SAVE_SN"), problem.start)
+            assertEquals("SAVE_SN", text.substring(problem.start, problem.end))
+        }
+    }
+
+    fun testMacroPreviewStopsAtExpansionTimeConstructs() {
+        for (construct in listOf(".if 1\n.endif", ".rept 2\n.endr", "OTHER", "M")) {
+            val text = ".macro OTHER\nnop\n.endm\n.macro M n=3\n.word \\n\\().x\n$construct\nnop\n.endm\nM"
+            myFixture.configureByText("macro.s", text)
+            val program = dev.masmld.riscv.symbols.RiscVProgram.get(myFixture.file)
+            val preview = requireNotNull(program.macros.callAt(text.lastIndex)).expansion()
+            assertTrue(preview, preview.startsWith(".word 3.x\n⟪预览在此停止⟫ "))
+            assertTrue(preview, preview.endsWith(construct.substringBefore('\n') + "\n"))
+        }
+    }
+
+    fun testMacroPreviewUsesModeAtCallAndAcceptsTrailingComma() {
+        val text = ".altmacro\n.macro M n:req\n.word n, \\n\n.endm\n.noaltmacro\nM 1,\n.altmacro\nM 2,"
+        myFixture.configureByText("macro.s", text)
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(myFixture.file)
+        val calls = program.symbols.references.filter { it.macroTarget != null }
+        assertEquals(listOf(".word n, 1", ".word 2, 2"), calls.map {
+            val call = requireNotNull(program.macros.callAt(it.start))
+            assertEmpty(call.problems)
+            call.expansion().trim()
+        })
+    }
+
+    fun testAlternateMacroPreviewNormalizesLiteralsAndKeepsExpressionsSymbolic() {
+        val values = listOf("%0x10" to "16", "%010" to "8", "%0b11" to "3", "%-2" to "-2",
+            "%(n + 2)" to "⟨(n + 2)⟩", "%2+3" to "⟨2+3⟩")
+        val header = ".altmacro\n.macro M n\n.word \\n\n.endm\n"
+        myFixture.configureByText("macro.s", header + values.joinToString("\n") { (value, _) -> "M $value" })
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(myFixture.file)
+        val calls = program.symbols.references.filter { it.macroTarget != null }
+        assertEquals(values.map { ".word ${it.second}" }, calls.map {
+            requireNotNull(program.macros.callAt(it.start)).expansion().trim()
+        })
+    }
+
+    fun testMacroPreviewAtRepeatArgumentUsesSymbolicValue() {
+        val source = ".altmacro\n.macro SAVE_GP n\n    sd x\\n, \\n*8(sp)\n.endm\n" +
+            ".set n, 5\n.rept 27\n    SAVE_GP %n<caret>\n.set n, n+1\n.endr"
+        myFixture.configureByText("trap.S", source)
+        val program = dev.masmld.riscv.symbols.RiscVProgram.get(myFixture.file)
+        val call = requireNotNull(program.macros.callAt(myFixture.file, myFixture.caretOffset))
+        assertEquals(mapOf("n" to "⟨n⟩"), call.bindings)
+        assertEquals("sd x⟨n⟩, ⟨n⟩*8(sp)", call.expansion().trim())
+    }
+
+    fun testMacroDiagnosticsSkipUncertainActiveDefinitions() {
+        for (guard in listOf(".if 1\n.endif", "#ifdef TARGET\n#endif", ".include \"missing.s\"")) {
+            myFixture.configureByText("macro.S", "$guard\n.macro M n:req\nnop\n.endm\nM")
+            assertEmpty(dev.masmld.riscv.editing.RiscVFileDiagnostics.get(myFixture.file))
+        }
+    }
+
     fun testSymbolCompletionAndConservativeReformat() {
         myFixture.configureByText("entry.asm", "target: nop\nj tar<caret>")
         val variants = myFixture.completeBasic()

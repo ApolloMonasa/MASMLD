@@ -21,4 +21,10 @@
         <platform.backend.documentation.targetProvider implementation="dev.masmld.ld.documentation.LdDocumentationTargetProvider"/>
         <platform.backend.documentation.psiTargetProvider implementation="dev.masmld.ld.documentation.LdPsiDocumentationTargetProvider"/>
     </extensions>
+    <actions>
+        <action id="dev.masmld.InspectLinkerMap" class="dev.masmld.ld.map.InspectLinkerMapAction" text="MASMLD: Inspect GNU ld Map">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>

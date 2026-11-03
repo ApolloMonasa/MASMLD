@@ -51,7 +51,9 @@ class RiscVEditingTest {
     }
     @Test fun `macro completion observes purge and target options reject unsupported configurations`() {
         val source = ".macro save\n.endm\n.purgem save\n"
-        assertTrue(RiscVCompletionContext.activeMacros(source, source.length).isEmpty())
+        val conditions = dev.masmld.riscv.symbols.RiscVConditions(source, emptySet())
+        RiscVSymbols.analyze(source, conditions)
+        assertTrue(conditions.macrosAt(source.length).isEmpty())
         assertTrue(RiscVDiagnostics.analyze("nop # comment\nret /* comment */", null).isEmpty())
         assertNotNull(RiscVArchitectureProvider().validateOptions("rv64i", "gnu", "rv64garbage"))
         assertNull(RiscVArchitectureProvider().validateOptions("rv64i", "gnu", "rv64gc"))

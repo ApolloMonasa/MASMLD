@@ -55,7 +55,7 @@ data class IncludeDirective(val path: String, val start: Int, val end: Int, val 
 data class SourceUnit(val id: String, val text: String)
 data class SourcePiece(val unit: SourceUnit, val sourceStart: Int, val expandedStart: Int, val length: Int)
 data class SourceSite(val unit: SourceUnit, val offset: Int)
-data class ExpandedSource(val text: String, val pieces: List<SourcePiece>, val issues: List<String>) {
+data class ExpandedSource(val text: String, val pieces: List<SourcePiece>, val issues: List<String>, val unresolvedIncludes: Set<Int> = emptySet()) {
     fun site(offset: Int): SourceSite? = pieces.lastOrNull { offset >= it.expandedStart && offset < it.expandedStart + it.length }
         ?.let { SourceSite(it.unit, it.sourceStart + offset - it.expandedStart) }
     fun expandedOffset(id: String, offset: Int): Int? = pieces.firstOrNull {
@@ -93,25 +93,35 @@ object SourceGraph {
         val text = StringBuilder()
         val pieces = mutableListOf<SourcePiece>()
         val issues = mutableListOf<String>()
+        val unresolvedIncludes = mutableSetOf<Int>()
         var count = 0
-        fun visit(unit: SourceUnit, stack: Set<String>) {
+        fun visit(unit: SourceUnit, stack: Set<String>, includeOffset: Int? = null) {
             if (unit.id in stack || stack.size >= 32 || count++ >= 128 || text.length + unit.text.length > 8_000_000) {
-                issues += "Include expansion limit or cycle: ${unit.id}"; return
+                issues += "Include expansion limit or cycle: ${unit.id}"
+                includeOffset?.let { unresolvedIncludes += it }
+                return
             }
             fun append(start: Int, end: Int) {
                 if (end > start) { pieces += SourcePiece(unit, start, text.length, end - start); text.append(unit.text, start, end) }
             }
             var start = 0
             for (include in includes(unit.text, assembly)) {
+                val offset = text.length + include.directiveStart - start
                 append(start, include.directiveEnd)
                 val child = load(unit, include.path)
-                if (child == null) issues += "Include not found: ${include.path}"
-                else { text.append('\n'); visit(child, stack + unit.id); text.append('\n') }
+                if (child == null) {
+                    issues += "Include not found: ${include.path}"
+                    unresolvedIncludes += offset
+                } else {
+                    text.append('\n')
+                    visit(child, stack + unit.id, offset)
+                    text.append('\n')
+                }
                 start = include.directiveEnd
             }
             append(start, unit.text.length)
         }
         visit(root, emptySet())
-        return ExpandedSource(text.toString(), pieces, issues)
+        return ExpandedSource(text.toString(), pieces, issues, unresolvedIncludes)
     }
 }

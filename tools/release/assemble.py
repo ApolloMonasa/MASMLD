@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit and assemble local installable plugin ZIPs with checksums and verification evidence."""
+"""Audit and assemble local installable plugin ZIPs with checksums and verification summaries."""
 import hashlib
 import io
 import json
@@ -17,7 +17,7 @@ if output.exists():
     shutil.rmtree(output)
 output.mkdir(parents=True)
 manifest = {'version': VERSION, 'plugins': [], 'unit_tests': {}, 'binary_verification': [],
-            'runtime_smoke': 'Platform editor tests execute in unit-test mode. See validation.md for the scope and version of publisher GUI acceptance.'}
+            'runtime_smoke': 'Platform editor tests execute in unit-test mode.'}
 for module, plugin_id in MODULES.items():
     artifact = ROOT / f'plugins/{module}/build/distributions/{module}-{VERSION}.zip'
     with zipfile.ZipFile(artifact) as archive:
@@ -54,9 +54,6 @@ for module, plugin_id in MODULES.items():
         result = ET.parse(report).getroot()
         assert int(result.attrib['failures']) == 0 and int(result.attrib['errors']) == 0 and int(result.attrib['skipped']) == 0, f'Failing/skipped tests: {report}'
         count += int(result.attrib['tests'])
-        target = output / 'evidence/tests' / module
-        target.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(report, target / report.name)
     manifest['unit_tests'][module] = count
     verdicts = list((ROOT / 'build/reports/pluginVerifier').glob(f'*/plugins/{plugin_id}/{VERSION}/verification-verdict.txt'))
     assert verdicts, f'No binary verification evidence for {plugin_id}'
@@ -66,10 +63,6 @@ for module, plugin_id in MODULES.items():
             problem = verdict.parent / issue
             assert not problem.exists() or not problem.read_text().strip(), f'Blocking verifier report: {problem}'
         ide = verdict.parents[3].name
-        destination = output / 'evidence/verifier' / ide / plugin_id
-        destination.mkdir(parents=True, exist_ok=True)
-        for report in verdict.parent.glob('*.txt'):
-            shutil.copy2(report, destination / report.name)
         manifest['binary_verification'].append({'plugin': plugin_id, 'ide': ide, 'verdict': verdict.read_text().strip()})
 manifest['toolchain_integration'] = {}
 for label, script, folder in [('binary', 'binary.py', 'toolchain-smoke'), ('riscv_catalog', 'riscv_catalog.py', 'riscv-catalog-smoke')]:
@@ -81,12 +74,6 @@ for label, script, folder in [('binary', 'binary.py', 'toolchain-smoke'), ('risc
     else:
         fresh = False
     manifest['toolchain_integration'][label] = {'executed_for_current_version_and_script': fresh}
-    if fresh:
-        target = output / 'evidence/toolchains' / label
-        target.mkdir(parents=True)
-        for path in source_dir.iterdir():
-            if path.suffix in ('.json', '.c', '.cpp', '.rs', '.s'):
-                shutil.copy2(path, target / path.name)
 (output / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 (output / 'INSTALL.md').write_text(f'''# MASMLD {VERSION}
 
@@ -100,12 +87,10 @@ Enable Show quick documentation on hover, or use View → Quick Documentation.
 File type associations already owned by another plugin may need manual selection.
 
 These are installable local packages; consult the public release page for publication status. Marketplace review is a separate process.
-Licensed under MIT; see LICENSE. Read validation.md for runtime checks and known gaps. SHA256SUMS covers every payload file.
+Licensed under MIT; see LICENSE. SHA256SUMS covers every payload file.
 ''')
-shutil.copy2(ROOT / 'docs/validation.md', output / 'validation.md')
 shutil.copy2(ROOT / 'LICENSE', output / 'LICENSE')
 shutil.copy2(ROOT / 'CHANGELOG.md', output / 'CHANGELOG.md')
-shutil.copy2(ROOT / 'docs/developer-workflows.md', output / 'developer-workflows.md')
 checksums = []
 for path in sorted(output.rglob('*')):
     if path.is_file():

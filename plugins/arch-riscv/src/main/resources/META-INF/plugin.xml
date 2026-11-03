@@ -29,6 +29,9 @@
         <colorSettingsPage implementation="dev.masmld.riscv.highlighting.RiscVColorSettingsPage"/>
     </extensions>
     <actions>
+        <action id="dev.masmld.RiscVMacroPreview" class="dev.masmld.riscv.editing.RiscVMacroPreviewAction" text="MASMLD: Preview Macro Expansion">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
         <action id="dev.masmld.DemangleSymbol" class="dev.masmld.riscv.editing.DemangleSymbolAction" text="MASMLD: Demangle and Navigate Symbol" description="Use the configured demangler to find source symbols">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
