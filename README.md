@@ -6,7 +6,7 @@
 
 [公开下载](https://github.com/ApolloMonasa/MASMLD/releases) · [问题反馈](https://github.com/ApolloMonasa/MASMLD/issues) · [MIT](LICENSE)
 
-当前候选版本：**0.8.0-rc.2**，采用 SemVer 2.0.0；此前公开版本为 0.7.0。本候选版包含新增开发者编辑能力和近期修复。0.7 商店条目：[Core](https://plugins.jetbrains.com/plugin/35737-masmld-core)、[RISC-V](https://plugins.jetbrains.com/plugin/35738-masmld-risc-v)、[GNU ld](https://plugins.jetbrains.com/plugin/35739-masmld-gnu-linker-script)，状态以商店页面为准。
+当前候选版本：**0.8.0-rc.3**，采用 SemVer 2.0.0；此前公开版本为 0.7.0。本候选版包含新增开发者编辑能力和近期修复。0.7 商店条目：[Core](https://plugins.jetbrains.com/plugin/35737-masmld-core)、[RISC-V](https://plugins.jetbrains.com/plugin/35738-masmld-risc-v)、[GNU ld](https://plugins.jetbrains.com/plugin/35739-masmld-gnu-linker-script)，状态以商店页面为准。
 
 ## 功能
 
@@ -46,7 +46,7 @@ Hover 需启用 **Show quick documentation on hover**，也可使用 Quick Docum
   -PlocalIdePath=/absolute/path/to/rustrover
 ```
 
-本地交付容器为 `build/releases/masmld-0.8.0-rc.2.zip`，包含三个独立可安装 ZIP、说明、校验和和验证证据。外层 ZIP 须解压后安装内部插件 ZIP。网络受限时使用 `-PpluginRepository=<Maven URL>`、`-PmavenRepository=<Maven URL>` 配置可信镜像，不保存个人代理或 SDK 绝对路径。
+本地交付容器为 `build/releases/masmld-0.8.0-rc.3.zip`，包含三个独立可安装 ZIP、说明、校验和和验证证据。外层 ZIP 须解压后安装内部插件 ZIP。网络受限时使用 `-PpluginRepository=<Maven URL>`、`-PmavenRepository=<Maven URL>` 配置可信镜像，不保存个人代理或 SDK 绝对路径。
 
 测试包含纯语义检查及 IntelliJ Platform unit-test 模式下的真实 PSI、索引和编辑器操作，无需单独 IDE 许可；这不等同于新版本的图形界面/主题验收。完整历史记录与本轮结果见 [验证记录](docs/validation.md)。
 

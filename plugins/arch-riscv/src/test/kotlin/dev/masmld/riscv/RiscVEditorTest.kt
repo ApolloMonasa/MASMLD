@@ -165,6 +165,17 @@ class RiscVEditorTest : BasePlatformTestCase() {
         }
     }
 
+    fun testEnterAfterIncludeReturnsToTopLevel() {
+        myFixture.addFileToProject("trap.S", ".macro SAVE_GP\n    nop\n.endm\n")
+        for (indent in listOf("", "    ")) {
+            val include = indent + ".include \"trap.S\""
+            myFixture.configureByText("entry.S", "$include<caret>")
+            myFixture.type('\n')
+            myFixture.type("SAVE_GP")
+            myFixture.checkResult("$include\nSAVE_GP<caret>")
+        }
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro

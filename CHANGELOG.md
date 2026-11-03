@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0-rc.3 — 2026-11-03
+
+- Return to the first column on Enter after a RISC-V .include directive.
+
 ## 0.8.0-rc.2 — 2026-11-03
 
 - Indent one level on Enter after standalone RISC-V labels, using the editor code style.

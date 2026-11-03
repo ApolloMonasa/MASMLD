@@ -41,7 +41,7 @@ class RiscVLineIndentProvider : LineIndentProvider {
                     currentIndent + " ".repeat(indentSize)
                 }
             }
-            directive == ".endm" -> ""
+            directive == ".endm" || directive == ".include" -> ""
             else -> currentIndent
         }
     }
