@@ -17,7 +17,7 @@ if output.exists():
     shutil.rmtree(output)
 output.mkdir(parents=True)
 manifest = {'version': VERSION, 'plugins': [], 'unit_tests': {}, 'binary_verification': [],
-            'runtime_smoke': 'Platform editor tests execute in unit-test mode. Publisher GUI acceptance applies to preceding builds; 0.8 has no new full-GUI acceptance. See validation.md.'}
+            'runtime_smoke': 'Platform editor tests execute in unit-test mode. See validation.md for the scope and version of publisher GUI acceptance.'}
 for module, plugin_id in MODULES.items():
     artifact = ROOT / f'plugins/{module}/build/distributions/{module}-{VERSION}.zip'
     with zipfile.ZipFile(artifact) as archive:

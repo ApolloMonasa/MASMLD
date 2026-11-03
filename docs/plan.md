@@ -1,6 +1,6 @@
 # 开发计划与当前状态
 
-0.7.0 为首个公开版本；0.8.0-rc.3 实现本轮开发者能力补充。对应关系见 [覆盖表](development-matrix.md)，使用见 [开发者编辑能力](developer-workflows.md)，证据见 [验证记录](validation.md)。
+0.7.0 为首个公开版本；0.8.0 实现本轮开发者能力补充。对应关系见 [覆盖表](development-matrix.md)，使用见 [开发者编辑能力](developer-workflows.md)，证据见 [验证记录](validation.md)。
 
 | 范围 | 本轮交付 |
 | --- | --- |

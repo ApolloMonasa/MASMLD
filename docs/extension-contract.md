@@ -1,6 +1,6 @@
 # 架构扩展契约与组合验证
 
-0.8.0-rc.3。Core 与可选插件按相同版本安装，遵循 SemVer；0.x 公共 API 仍处开发期。新增的 ArchitectureOptionsValidator 为可选能力，原 provider 无需实现。完整开发说明与独立 arch-example 见 [developer-api.md](developer-api.md)。下方保留基础注册及组合验证契约。
+0.8.0。Core 与可选插件按相同版本安装，遵循 SemVer；0.x 公共 API 仍处开发期。新增的 ArchitectureOptionsValidator 为可选能力，原 provider 无需实现。完整开发说明与独立 arch-example 见 [developer-api.md](developer-api.md)。下方保留基础注册及组合验证契约。
 
 ## 接入方式
 

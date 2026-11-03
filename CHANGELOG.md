@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0 — 2026-11-03
+
+- Promote the 0.8 release candidates after RustRover editor acceptance.
+
 ## 0.8.0-rc.3 — 2026-11-03
 
 - Return to the first column on Enter after a RISC-V .include directive.
