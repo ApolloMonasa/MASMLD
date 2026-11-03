@@ -134,9 +134,27 @@ class RiscVEditorTest : BasePlatformTestCase() {
         })
     }
 
+    fun testEnterAfterStandaloneLabelUsesOneIndent() {
+        for (label in listOf("__alltraps:", ".Lloop: # comment", "1:")) {
+            myFixture.configureByText("label.s", "$label<caret>")
+            val settings = com.intellij.application.options.CodeStyle.getSettings(project).clone()
+            settings.getIndentOptions(myFixture.file.fileType).apply {
+                INDENT_SIZE = 4
+                TAB_SIZE = 4
+                USE_TAB_CHARACTER = true
+            }
+            com.intellij.application.options.CodeStyle.doWithTemporarySettings(project, settings, Runnable {
+                myFixture.type('\n')
+                myFixture.type("nop")
+                assertEquals("$label\n    nop", myFixture.editor.document.text.replace("\t", "    "))
+            })
+        }
+    }
+
     fun testEnterUsesStatementIndentInsteadOfContinuationIndent() {
         val cases = listOf(
             ".text" to "",
+            "__alltraps: nop" to "",
             "    addi a0, a0, 1" to "    ",
             ".macro HELLO\n    .p2align 2" to "    "
         )

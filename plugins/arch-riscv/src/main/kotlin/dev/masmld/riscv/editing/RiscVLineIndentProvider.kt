@@ -7,6 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.lineIndent.LineIndentProvider
 import dev.masmld.riscv.RiscVLanguage
 
+private val labelOnly = Regex("""(?:[\p{L}_.$][\p{L}\p{Nd}_.$]*|[0-9]+)[ \t]*:[ \t]*(?:(?:#|//).*)?""")
+
 class RiscVLineIndentProvider : LineIndentProvider {
     override fun isSuitableFor(language: Language?): Boolean =
         language?.isKindOf(RiscVLanguage) == true
@@ -23,9 +25,10 @@ class RiscVLineIndentProvider : LineIndentProvider {
             document.getLineEndOffset(line - 1)
         ).toString()
         val currentIndent = previousLine.takeWhile { it == ' ' || it == '\t' }
-        val directive = previousLine.drop(currentIndent.length).takeWhile { !it.isWhitespace() && it != '#' }
-        return when (directive) {
-            ".macro" -> {
+        val statement = previousLine.drop(currentIndent.length)
+        val directive = statement.takeWhile { !it.isWhitespace() && it != '#' }
+        return when {
+            directive == ".macro" || labelOnly.matches(statement) -> {
                 val options = CodeStyle.getIndentOptions(project, document)
                 val indentSize = options.INDENT_SIZE.coerceAtLeast(0)
                 val tabSize = options.TAB_SIZE.coerceAtLeast(1)
@@ -38,7 +41,7 @@ class RiscVLineIndentProvider : LineIndentProvider {
                     currentIndent + " ".repeat(indentSize)
                 }
             }
-            ".endm" -> ""
+            directive == ".endm" -> ""
             else -> currentIndent
         }
     }
