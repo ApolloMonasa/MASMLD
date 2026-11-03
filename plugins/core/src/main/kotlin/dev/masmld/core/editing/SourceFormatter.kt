@@ -33,6 +33,15 @@ class SourceFormatter(private val assembly: Boolean) : FormattingModelBuilder {
             val levels = if (macroDepth > 0 && !text.startsWith(".endm")) 1 else if (text.startsWith('.') || Regex("^[\\w.$]+:").containsMatchIn(text)) 0 else 1
             return if (levels == 0) Indent.getNoneIndent() else Indent.getNormalIndent()
         }
+        override fun getChildAttributes(newChildIndex: Int): ChildAttributes {
+            if (assembly && root) {
+                val previous = (subBlocks.getOrNull(newChildIndex - 1) as? CodeBlock)?.node
+                if (previous?.firstChildNode?.text == ".endm") {
+                    return ChildAttributes(Indent.getNoneIndent(), null)
+                }
+            }
+            return super.getChildAttributes(newChildIndex)
+        }
         override fun getSpacing(child1: Block?, child2: Block): Spacing? {
             if (child1 == null) return null
             val first = (child1 as CodeBlock).node

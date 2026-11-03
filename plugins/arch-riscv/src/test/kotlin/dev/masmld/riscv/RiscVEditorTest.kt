@@ -48,6 +48,20 @@ class RiscVEditorTest : BasePlatformTestCase() {
             myFixture.checkResult("label: .2byte")
         }
     }
+    fun testEnterAfterEndmReturnsToTopLevel() {
+        val source = """
+            .altmacro
+            .macro SAVE_SN n
+                sd s\n, (\n+2)*8(a0)
+            .endm
+            .macro LOAD_SN n
+                ld s\n, (\n+2)*8(a1)
+            .endm
+        """.trimIndent()
+        myFixture.configureByText("macro.asm", source + "<caret>")
+        myFixture.type('\n')
+        myFixture.checkResult(source + "\n<caret>")
+    }
     fun testMacroRenamePreservesLabelNamespace() {
         myFixture.configureByText("rename.asm", ".macro <caret>save reg\nnop\n.endm\nsave: nop\nsave ra\nj save\n.purgem save\n")
         myFixture.renameElementAtCaret("push_reg")
