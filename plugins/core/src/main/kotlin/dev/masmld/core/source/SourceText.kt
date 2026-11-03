@@ -76,7 +76,8 @@ object SourceGraph {
             if (name.kind == SourceToken.Kind.STRING) {
                 if (!name.text.endsWith(name.text.take(1)) || name.text.length < 2) continue
                 result += IncludeDirective(name.text.substring(1, name.text.length - 1), name.start + 1, name.end - 1, token.start, name.end)
-            } else if (!assembly) {
+            } else {
+                // Keep include resolution available while an assembly path is still unquoted.
                 var end = name.end
                 for (next in tokens.drop(index + 2)) {
                     if (next.start != end || next.kind == SourceToken.Kind.NEWLINE || next.text in setOf(";", "{", "}")) break

@@ -26,6 +26,23 @@ class RiscVEditorTest : BasePlatformTestCase() {
         assertEquals("macros.inc", myFixture.file.findReferenceAt(myFixture.file.text.lastIndexOf("save"))!!.resolve()!!.containingFile.name)
         assertEquals("macros.inc", (myFixture.file.findReferenceAt(myFixture.file.text.indexOf("macros.inc"))!!.resolve() as com.intellij.psi.PsiFile).name)
     }
+    fun testMacroCompletionAndNavigationFromSiblingAssemblyFile() {
+        val definition = myFixture.addFileToProject("sub.s", ".macro SAVE_SN n\n    sd s\\n, (\\n+2)*8(a0)\n.endm\n")
+        for (path in listOf("sub.s", "\"sub.s\"")) {
+            myFixture.configureByText("main.s", ".include $path\n    SAVE_<caret> 1")
+            myFixture.completeBasic()
+            myFixture.lookup?.let { lookup ->
+                lookup.currentItem = lookup.items.single { it.lookupString == "SAVE_SN" }
+                myFixture.finishLookup(com.intellij.codeInsight.lookup.Lookup.NORMAL_SELECT_CHAR)
+            }
+            myFixture.checkResult(".include $path\n    SAVE_SN 1")
+            val file = myFixture.file
+            val macro = file.findReferenceAt(file.text.indexOf("SAVE_SN"))?.resolve()
+            assertEquals("SAVE_SN", (macro as? com.intellij.psi.PsiNamedElement)?.name)
+            assertEquals(definition.virtualFile, macro?.containingFile?.virtualFile)
+        }
+    }
+
     fun testSymbolCompletionAndConservativeReformat() {
         myFixture.configureByText("entry.asm", "target: nop\nj tar<caret>")
         val variants = myFixture.completeBasic()
