@@ -38,21 +38,24 @@ class RiscVCompletion : CompletionContributor() {
         val source = file.text
         val offset = parameters.offset.coerceAtMost(source.length)
         val head = RiscVCompletionContext.head(source, offset) ?: return
+        val prefix = source.take(offset).takeLastWhile { it.isLetterOrDigit() || it in "_.\$" }
+        // The lookup prefix determines how much typed text IntelliJ replaces on selection.
+        val completions = if (head && prefix.startsWith('.')) result.withPrefixMatcher(prefix) else result
         val program = RiscVProgram.get(file)
         val isa = program.targetAt(file, offset)
         RiscVDocumentationCatalog.entries.filter { entry ->
             (if (head) entry.kind in setOf(K.INSTRUCTION, K.PSEUDO_INSTRUCTION, K.DIRECTIVE) else entry.kind == K.REGISTER) && RiscVIsa.supports(entry.name, isa)
-        }.forEach { entry -> result.addElement(LookupElementBuilder.create(entry.name).withTypeText(entry.kind.name.lowercase()).withTailText("  ${entry.syntax}", true)) }
+        }.forEach { entry -> completions.addElement(LookupElementBuilder.create(entry.name).withTypeText(entry.kind.name.lowercase()).withTailText("  ${entry.syntax}", true)) }
         if (!head && !com.intellij.openapi.project.DumbService.isDumb(file.project)) {
             val scope = com.intellij.psi.search.GlobalSearchScope.projectScope(file.project)
             var count = 0
             try {
                 com.intellij.util.indexing.FileBasedIndex.getInstance().processAllKeys(dev.masmld.riscv.symbols.RiscVExportIndex.ID, com.intellij.util.Processor<String> { name ->
                     com.intellij.openapi.progress.ProgressManager.checkCanceled()
-                    if (result.prefixMatcher.prefixMatches(name) && com.intellij.util.indexing.FileBasedIndex.getInstance().getContainingFiles(dev.masmld.riscv.symbols.RiscVExportIndex.ID, name, scope).any { candidate ->
+                    if (completions.prefixMatcher.prefixMatches(name) && com.intellij.util.indexing.FileBasedIndex.getInstance().getContainingFiles(dev.masmld.riscv.symbols.RiscVExportIndex.ID, name, scope).any { candidate ->
                             AssemblySettings.getInstance(file.project).selection(candidate.path.removePrefix(file.project.basePath.orEmpty() + "/")).architecture == "riscv"
                         }) {
-                        result.addElement(LookupElementBuilder.create(name).withTypeText("project export")); count++
+                        completions.addElement(LookupElementBuilder.create(name).withTypeText("project export")); count++
                     }
                     count < 200
                 }, scope, null)
@@ -60,14 +63,14 @@ class RiscVCompletion : CompletionContributor() {
         }
         val expandedOffset = program.expanded.expandedOffset(file.virtualFile?.url.orEmpty(), offset - 1) ?: Int.MAX_VALUE
         program.symbols.definitions.filter { if (head) it.macro && it.start in RiscVCompletionContext.activeMacros(program.expanded.text, expandedOffset).values else !it.macro }.distinctBy { it.name }.forEach { def ->
-            result.addElement(LookupElementBuilder.create(def.name).withTypeText(if (def.macro) "macro" else "symbol"))
+            completions.addElement(LookupElementBuilder.create(def.name).withTypeText(if (def.macro) "macro" else "symbol"))
         }
         // Macro parameters are offered only inside their own lexical macro body.
         val before = source.take(offset)
         val macro = Regex("(?m)^\\s*\\.macro\\s+(\\S+)([^\\n]*)").findAll(before).lastOrNull()
         if (!head && macro != null && !before.substring(macro.range.last + 1).contains(Regex("(?m)^\\s*\\.endm\\b"))) {
             Regex("[A-Za-z_][A-Za-z0-9_]*").findAll(macro.groupValues[2].substringBefore('#')).map { it.value }
-                .filter { it !in setOf("req", "vararg") }.forEach { result.addElement(LookupElementBuilder.create("\\$it").withTypeText("macro parameter")) }
+                .filter { it !in setOf("req", "vararg") }.forEach { completions.addElement(LookupElementBuilder.create("\\$it").withTypeText("macro parameter")) }
         }
     }
 }

@@ -37,6 +37,17 @@ class RiscVEditorTest : BasePlatformTestCase() {
         assertTrue(myFixture.file.text.contains("a0, a1, a2"))
         assertTrue(myFixture.file.text.contains("\"a,b\""))
     }
+    fun testDirectiveCompletionReplacesTheLeadingDot() {
+        for (prefix in listOf(".", ".2b")) {
+            myFixture.configureByText("directive.asm", "label: ${prefix}<caret>")
+            myFixture.completeBasic()
+            myFixture.lookup?.let { lookup ->
+                lookup.currentItem = lookup.items.single { it.lookupString == ".2byte" }
+                myFixture.finishLookup(com.intellij.codeInsight.lookup.Lookup.NORMAL_SELECT_CHAR)
+            }
+            myFixture.checkResult("label: .2byte")
+        }
+    }
     fun testMacroRenamePreservesLabelNamespace() {
         myFixture.configureByText("rename.asm", ".macro <caret>save reg\nnop\n.endm\nsave: nop\nsave ra\nj save\n.purgem save\n")
         myFixture.renameElementAtCaret("push_reg")
