@@ -32,7 +32,7 @@ object RiscVClassifier {
         pseudoNoRegisters + words("jr call") + RiscVIsa.csrAliases.keys
     private val instructions = threeRegisters + twoRegistersImmediate + branches + loads + stores + upper +
         noRegisters + words("jal jalr")
-    private val directives = words(".text .data .bss .rodata .section .pushsection .popsection .previous .subsection .globl .global .local .weak .hidden .type .size .align .balign .p2align .byte .2byte .half .short .4byte .word .long .8byte .dword .quad .ascii .asciz .string .zero .space .skip .fill .equ .equiv .set .comm .lcomm .file .loc .ident .include .incbin .macro .purgem .endm .exitm .rept .endr .irp .irpc .if .ifdef .ifndef .ifeq .ifne .else .elseif .endif .option .attribute .insn .variant_cc .dtprelword .dtpreldword .uleb128 .sleb128 .org .end .cfi_startproc .cfi_endproc .cfi_def_cfa .cfi_def_cfa_offset .cfi_offset .cfi_restore .cfi_adjust_cfa_offset")
+    private val directives = words(".text .data .bss .rodata .section .pushsection .popsection .previous .subsection .globl .global .local .weak .hidden .type .size .align .balign .p2align .byte .2byte .half .short .4byte .word .long .8byte .dword .quad .ascii .asciz .string .zero .space .skip .fill .equ .equiv .set .comm .lcomm .file .loc .ident .include .incbin .altmacro .noaltmacro .macro .purgem .endm .exitm .rept .endr .irp .irpc .if .ifdef .ifndef .ifeq .ifne .else .elseif .endif .option .attribute .insn .variant_cc .dtprelword .dtpreldword .uleb128 .sleb128 .org .end .cfi_startproc .cfi_endproc .cfi_def_cfa .cfi_def_cfa_offset .cfi_offset .cfi_restore .cfi_adjust_cfa_offset")
 
     fun classify(source: CharSequence): List<RiscVHighlight> {
         val result = mutableListOf<RiscVHighlight>()

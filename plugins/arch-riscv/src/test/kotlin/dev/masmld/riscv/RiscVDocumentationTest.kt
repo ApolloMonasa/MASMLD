@@ -40,7 +40,7 @@ class RiscVDocumentationTest {
         assertEquals("a1", Lookup.at(source, source.indexOf("a1"))?.name)
     }
     @Test fun `all catalog entries are reachable through contextual lookup`() {
-        assertEquals(189 + dev.masmld.riscv.editing.RiscVIsa.instructions.size + dev.masmld.riscv.editing.RiscVIsa.floatingRegisters.size, Catalog.entries.size)
+        assertEquals(191 + dev.masmld.riscv.editing.RiscVIsa.instructions.size + dev.masmld.riscv.editing.RiscVIsa.floatingRegisters.size, Catalog.entries.size)
         for (entry in Catalog.entries) {
             val source = if (entry.kind == K.REGISTER) if (entry.name in dev.masmld.riscv.editing.RiscVIsa.floatingRegisters) "fadd.s ${entry.name},fa0,fa1" else "add ${entry.name},zero,zero" else entry.name
             val offset = if (entry.kind == K.REGISTER) source.indexOf(entry.name) else 0

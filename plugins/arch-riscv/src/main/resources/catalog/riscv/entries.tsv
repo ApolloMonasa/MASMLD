@@ -111,6 +111,8 @@ DIRECTIVE	.type	.type symbol, @type	标注 ELF 符号类型，例如函数或对
 DIRECTIVE	.size	.size symbol, expression	设置 ELF 符号大小元数据。	常用当前位置减去起始标签计算函数长度。	.size _start, . - _start	GNU as / RISC-V	gas
 DIRECTIVE	.option	.option argument	调整 RISC-V 汇编选项，例如 push/pop、pic/nopic 或 relax/norelax。	建议用 push/pop 限定选项变更范围；它不直接执行 CPU 配置指令。	.option norelax	GNU as / RISC-V	gasrv
 DIRECTIVE	.attribute	.attribute tag, value	设置目标文件的 RISC-V 属性元数据。	属性可描述指令集；插件当前不会据此切换架构或验证指令。	.attribute arch, "rv64i"	GNU as / RISC-V	gasrv
+DIRECTIVE	.altmacro	.altmacro	启用 GNU as 替代宏模式。	支持 LOCAL 唯一符号和 %expr 表达式转字符串。宏调用使用位置参数。	.altmacro	GNU as / RISC-V	gas
+DIRECTIVE	.noaltmacro	.noaltmacro	关闭 GNU as 替代宏模式。	恢复普通宏语法。	.noaltmacro	GNU as / RISC-V	gas
 DIRECTIVE	.macro	.macro name [arguments]	开始定义汇编宏。	以 .endm 结束；插件不执行宏展开。	.macro save reg	GNU as / RISC-V	gas
 DIRECTIVE	.endm	.endm	结束当前宏定义。	与 .macro 配对。	.endm	GNU as / RISC-V	gas
 DIRECTIVE	.include	.include "filename"	在汇编时包含另一个源文件。	插件按静态包含图提供跳转和符号解析；不执行预处理或宏实例化。	.include "constants.inc"	GNU as / RISC-V	gas
