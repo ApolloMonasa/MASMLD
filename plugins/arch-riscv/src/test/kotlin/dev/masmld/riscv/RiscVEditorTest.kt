@@ -117,6 +117,19 @@ class RiscVEditorTest : BasePlatformTestCase() {
         })
     }
 
+    fun testEnterUsesStatementIndentInsteadOfContinuationIndent() {
+        val cases = listOf(
+            ".text" to "",
+            "    addi a0, a0, 1" to "    ",
+            ".macro HELLO\n    .p2align 2" to "    "
+        )
+        for ((source, indent) in cases) {
+            myFixture.configureByText("indent.asm", source + "<caret>")
+            myFixture.type('\n')
+            assertEquals(source + "\n" + indent, myFixture.editor.document.text)
+        }
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro

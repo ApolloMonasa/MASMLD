@@ -17,6 +17,7 @@
         <lang.psiStructureViewFactory language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVStructure"/>
         <lang.foldingBuilder language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVFolding"/>
         <lang.formatter language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVFormatter"/>
+        <lineIndentProvider implementation="dev.masmld.riscv.editing.RiscVLineIndentProvider"/>
         <editorTypedHandler implementationClass="dev.masmld.riscv.editing.RiscVEndMacroTypedHandler" order="after lookup"/>
         <renamePsiElementProcessor implementation="dev.masmld.riscv.editing.RiscVRename"/>
         <lang.parameterInfo language="MASMLD RISC-V" implementationClass="dev.masmld.riscv.editing.RiscVParameterInfo"/>
