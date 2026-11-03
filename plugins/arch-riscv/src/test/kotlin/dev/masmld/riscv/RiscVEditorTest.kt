@@ -101,6 +101,22 @@ class RiscVEditorTest : BasePlatformTestCase() {
         myFixture.checkResult(body + ".endm<caret>")
     }
 
+    fun testEnterAfterMacroHeaderUsesOneIndent() {
+        myFixture.configureByText("macro.asm", ".macro HELLO<caret>\n.endm")
+        val settings = com.intellij.application.options.CodeStyle.getSettings(project).clone()
+        settings.getIndentOptions(myFixture.file.fileType).apply {
+            INDENT_SIZE = 4
+            TAB_SIZE = 4
+            CONTINUATION_INDENT_SIZE = 8
+            USE_TAB_CHARACTER = true
+        }
+        com.intellij.application.options.CodeStyle.doWithTemporarySettings(project, settings, Runnable {
+            myFixture.type('\n')
+            myFixture.type(".p2align 2")
+            assertEquals(".macro HELLO\n    .p2align 2\n.endm", myFixture.editor.document.text.replace("\t", "    "))
+        })
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro

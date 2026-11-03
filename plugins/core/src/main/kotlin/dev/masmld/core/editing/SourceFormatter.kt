@@ -36,8 +36,9 @@ class SourceFormatter(private val assembly: Boolean) : FormattingModelBuilder {
         override fun getChildAttributes(newChildIndex: Int): ChildAttributes {
             if (assembly && root) {
                 val previous = (subBlocks.getOrNull(newChildIndex - 1) as? CodeBlock)?.node
-                if (previous?.firstChildNode?.text == ".endm") {
-                    return ChildAttributes(Indent.getNoneIndent(), null)
+                when (previous?.firstChildNode?.text) {
+                    ".macro" -> return ChildAttributes(Indent.getNormalIndent(), null)
+                    ".endm" -> return ChildAttributes(Indent.getNoneIndent(), null)
                 }
             }
             return super.getChildAttributes(newChildIndex)
