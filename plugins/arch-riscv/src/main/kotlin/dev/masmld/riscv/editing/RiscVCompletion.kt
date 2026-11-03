@@ -1,6 +1,7 @@
 package dev.masmld.riscv.editing
 
 import com.intellij.codeInsight.completion.*
+import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import dev.masmld.core.documentation.DocumentationKind as K
 import dev.masmld.core.settings.AssemblySettings
@@ -40,12 +41,30 @@ class RiscVCompletion : CompletionContributor() {
         val head = RiscVCompletionContext.head(source, offset) ?: return
         val prefix = source.take(offset).takeLastWhile { it.isLetterOrDigit() || it in "_.\$" }
         // The lookup prefix determines how much typed text IntelliJ replaces on selection.
-        val completions = if (head && prefix.startsWith('.')) result.withPrefixMatcher(prefix) else result
+        val completions = if (prefix.startsWith('.')) result.withPrefixMatcher(prefix) else result
         val program = RiscVProgram.get(file)
         val isa = program.targetAt(file, offset)
         RiscVDocumentationCatalog.entries.filter { entry ->
             (if (head) entry.kind in setOf(K.INSTRUCTION, K.PSEUDO_INSTRUCTION, K.DIRECTIVE) else entry.kind == K.REGISTER) && RiscVIsa.supports(entry.name, isa)
-        }.forEach { entry -> completions.addElement(LookupElementBuilder.create(entry.name).withTypeText(entry.kind.name.lowercase()).withTailText("  ${entry.syntax}", true)) }
+        }.forEach { entry ->
+            var candidate = LookupElementBuilder.create(entry.name)
+                .withTypeText(entry.kind.name.lowercase())
+                .withTailText("  ${entry.syntax}", true)
+            if (entry.kind == K.DIRECTIVE && prefix.startsWith('.')) {
+                val suffix = source.drop(offset).takeWhile { it.isLetterOrDigit() || it in "_.\$" }
+                if (suffix.isNotEmpty()) {
+                    candidate = candidate.withInsertHandler { context, _ ->
+                        val tail = context.tailOffset
+                        if (context.completionChar == Lookup.NORMAL_SELECT_CHAR &&
+                            context.document.charsSequence.startsWith(suffix, tail)
+                        ) {
+                            context.document.deleteString(tail, tail + suffix.length)
+                        }
+                    }
+                }
+            }
+            completions.addElement(candidate)
+        }
         if (!head && !com.intellij.openapi.project.DumbService.isDumb(file.project)) {
             val scope = com.intellij.psi.search.GlobalSearchScope.projectScope(file.project)
             var count = 0

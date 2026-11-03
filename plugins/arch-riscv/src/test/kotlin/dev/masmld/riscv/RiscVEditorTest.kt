@@ -48,6 +48,28 @@ class RiscVEditorTest : BasePlatformTestCase() {
             myFixture.checkResult("label: .2byte")
         }
     }
+    fun testDirectiveCompletionInTheMiddlePreservesOperands() {
+        for (key in listOf(com.intellij.codeInsight.lookup.Lookup.NORMAL_SELECT_CHAR, com.intellij.codeInsight.lookup.Lookup.REPLACE_SELECT_CHAR)) {
+            myFixture.configureByText("directive.asm", ".2by<caret>te 1")
+            myFixture.completeBasic()
+            requireNotNull(myFixture.lookup).let { lookup ->
+                lookup.currentItem = lookup.items.single { it.lookupString == ".2byte" }
+                myFixture.finishLookup(key)
+            }
+            myFixture.checkResult(".2byte 1")
+        }
+    }
+
+    fun testDottedLocalLabelCompletionInOperand() {
+        myFixture.configureByText("loop.asm", ".Lloop: nop\nj .L<caret>")
+        myFixture.completeBasic()
+        myFixture.lookup?.let { lookup ->
+            lookup.currentItem = lookup.items.single { it.lookupString == ".Lloop" }
+            myFixture.finishLookup(com.intellij.codeInsight.lookup.Lookup.NORMAL_SELECT_CHAR)
+        }
+        myFixture.checkResult(".Lloop: nop\nj .Lloop")
+    }
+
     fun testEnterAfterEndmReturnsToTopLevel() {
         val source = """
             .altmacro
